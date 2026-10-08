@@ -28,9 +28,6 @@ nav{display:flex;gap:6px;flex-wrap:wrap}
 nav button{padding:6px 14px;border-radius:12px;font-weight:700;color:var(--muted)}
 nav button.on{background:var(--brand);color:#fff}
 nav button:not(.on):hover{background:var(--brand-soft);color:var(--brand)}
-.lockbadge{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:#f1edf7;color:var(--muted);font-weight:700;font-size:15px;transition:.15s}
-.lockbadge.open{background:var(--plus);color:#fff;box-shadow:0 0 0 4px var(--plus-soft)}
-.lockbadge kbd{background:#fff;color:var(--ink);border-radius:6px;padding:0 7px;border:1px solid var(--line);font-family:inherit}
 
 main{padding:16px 18px 40px;max-width:1500px;margin:0 auto}
 
@@ -212,7 +209,6 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
     <button data-act="tab" data-tab="keyboard">⌨️ Bàn phím</button>
     <button data-act="tab" data-tab="settings" data-guard>⚙️ Cài đặt</button>
   </nav>
-  <div class="lockbadge" id="lockbadge"></div>
 </header>
 
 <main>
@@ -295,16 +291,7 @@ function toast(msg) {
 let keyHeld = false;
 const HOLD_MS = 900;
 function lockLabel() { return (S.lock.key || 'a').toUpperCase(); }
-function renderLock() {
-  const b = document.getElementById('lockbadge');
-  if (S.lock.mode === 'key') {
-    b.className = 'lockbadge' + (keyHeld ? ' open' : '');
-    b.innerHTML = keyHeld ? `🔓 Đã mở khóa` : `🔒 Đang khóa`;
-  } else {
-    b.className = 'lockbadge';
-    b.innerHTML = `🔒 Nhấn giữ nút ~1 giây để chấm sao`;
-  }
-}
+function renderLock() {} // không hiện trạng thái khóa để học sinh không biết
 window.addEventListener('keydown', e => {
   if (S.lock.mode === 'key' && e.key && e.key.toLowerCase() === S.lock.key && !keyHeld) { keyHeld = true; renderLock(); }
 });
@@ -313,11 +300,7 @@ window.addEventListener('keyup', e => {
 });
 window.addEventListener('blur', () => { keyHeld = false; renderLock(); });
 
-function denied(el) {
-  if (S.lock.mode === 'key') toast('🔒 Đang khóa — chỉ thầy/cô mới bấm được');
-  else toast('🔒 Nhấn GIỮ nút khoảng 1 giây');
-  if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
-}
+function denied() {} // chưa mở khóa: im lặng, không báo gì
 
 /* Nhấn giữ: pointerdown → đợi HOLD_MS → chạy */
 let holdTimer = null, holdEl = null;
