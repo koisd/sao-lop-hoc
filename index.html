@@ -16,7 +16,6 @@
 <link href="bai-giang/bang-tinh.css?v=2" rel="stylesheet">
 <link href="bai-giang/email.css?v=2" rel="stylesheet">
 <link href="bai-giang/rieng-tu.css?v=2" rel="stylesheet">
-<link href="bai-giang/tinh-huong.css?v=2" rel="stylesheet">
 <style>
 :root{
   --bg:#fff8ec; --panel:#ffffff; --ink:#2b2340; --muted:#7a7090; --line:#eadfcf;
@@ -273,7 +272,6 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 <script src="bai-giang/bang-tinh.js?v=2"></script>
 <script src="bai-giang/email.js?v=2"></script>
 <script src="bai-giang/rieng-tu.js?v=2"></script>
-<script src="bai-giang/tinh-huong.js?v=2"></script>
 <script>
 /* ================== Dữ liệu ================== */
 const STORE = 'saoLopHoc_v1';
@@ -809,7 +807,6 @@ const LESSON_KEYS = {
   'bang-tinh': 'excel bảng tính ô hàng cột công thức sum tổng biểu đồ cột đường tròn chart dữ liệu',
   'email': 'gmail thư điện tử email gửi thư người nhận cc chủ đề chữ ký đính kèm lừa đảo phishing link lạ virus',
   'rieng-tu': 'facebook mạng xã hội đăng bài quyền riêng tư công khai bạn bè vị trí check-in dấu chân số cài đặt',
-  'tinh-huong': 'zalo messenger tin nhắn bắt nạt người lạ ứng xử nghi thức xin phép đăng ảnh thời gian màn hình catfishing an toàn',
 };
 let lsQ = '', lsK = 0;
 /* tô vàng phần khớp trong chữ gốc (so khớp không dấu) */
@@ -842,7 +839,7 @@ function lessonResults() {
     if (!items.length) return terms.length ? '' : `<h2 class="bg-group">Khối ${k}</h2><div class="empty">Chưa có bài.</div>`;
     return `<h2 class="bg-group">Khối ${k} <small>IC3 Spark ${tag}${terms.length ? ` · ${items.length} bài khớp` : ''}</small></h2><div class="bg-menu">${items.map(r => card(r.l, tag)).join('')}</div>`;
   }).join('');
-  el.innerHTML = groups || `<div class="ls-none">Không tìm thấy bài nào cho “<b>${esc(lsQ)}</b>”${lsK ? ` trong Khối ${lsK}` : ''}.<br>Thử: ${['email', 'biểu đồ', 'trình duyệt', 'bắt nạt', 'URL', 'chuột'].map(w => `<button class="bgchip" data-act="lsTry" data-q="${w}">${w}</button>`).join(' ')}</div>`;
+  el.innerHTML = groups || `<div class="ls-none">Không tìm thấy bài nào cho “<b>${esc(lsQ)}</b>”${lsK ? ` trong Khối ${lsK}` : ''}.<br>Thử: ${['email', 'biểu đồ', 'trình duyệt', 'đăng bài', 'URL', 'chuột'].map(w => `<button class="bgchip" data-act="lsTry" data-q="${w}">${w}</button>`).join(' ')}</div>`;
 }
 
 /* ================== Tabs ================== */
