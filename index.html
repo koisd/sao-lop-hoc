@@ -285,8 +285,8 @@ function defaults() {
       ],
     },
     rewards: [
-      { id: uid(), name: 'Sticker', ic: '🌟', cost: 15, img: 'img/sticker.jpg' },
-      { id: uid(), name: 'Squishy', ic: '🍡', cost: 60, img: 'img/squishy.jpg' },
+      { id: uid(), name: 'Sticker', ic: '🌟', cost: 15, img: 'img/sticker-meo.jpg' },
+      { id: uid(), name: 'Squishy', ic: '🍡', cost: 60, img: 'img/squishy-mochi.jpg' },
       { id: uid(), name: 'LEGO', ic: '🧱', cost: 200, img: 'img/lego.jpg' },
     ],
     lock: { mode: 'key', key: 'a' },
@@ -303,8 +303,8 @@ let S = load() || defaults();
 // bản cũ để LEGO 999⭐ → đổi về 200⭐
 S.rewards.forEach(r => { if (r.name === 'LEGO' && r.cost === 999) r.cost = 200; });
 // gắn ảnh có sẵn cho 3 món quà mặc định
-const REWARD_IMG = { sticker: 'img/sticker.jpg', squishy: 'img/squishy.jpg', lego: 'img/lego.jpg' };
-S.rewards.forEach(r => { const k = r.name.trim().toLowerCase(); if (!r.img && REWARD_IMG[k]) r.img = REWARD_IMG[k]; });
+const REWARD_IMG = { sticker: 'img/sticker-meo.jpg', squishy: 'img/squishy-mochi.jpg', lego: 'img/lego.jpg' };
+S.rewards.forEach(r => { const k = r.name.trim().toLowerCase(); if (REWARD_IMG[k] && (!r.img || r.img === 'img/sticker.jpg' || r.img === 'img/squishy.jpg')) r.img = REWARD_IMG[k]; });
 const rwPic = (r, cls) => r.img ? `<img class="${cls}" src="${esc(r.img)}" alt="${esc(r.name)}" loading="lazy">` : `<div class="ic">${r.ic}</div>`;
 function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { toast('⚠️ Không lưu được vào trình duyệt — hãy Xuất file dự phòng'); } }
 
@@ -554,7 +554,7 @@ function renderRewards() {
   }
   el.innerHTML = `<div class="rw-head"><h2>🎁 Kho quà</h2></div>
     <div class="shelf">${shelf}</div>
-    <p class="hint credit">Ảnh: “Big Sticker Sheets” – StickerGiant, “17/365 Toys: Smile” – xtheowl (Flickr, CC BY 2.0); “Lego Color Bricks” – Alan Chia (Wikimedia Commons, CC BY-SA 2.0). Ảnh đã được cắt vuông.</p>
+    <p class="hint credit">Ảnh LEGO: “Lego Color Bricks” – Alan Chia (Wikimedia Commons, CC BY-SA 2.0).</p>
     <div class="rw-head"><h2>🏆 Bảng sao</h2>
       <select id="rwClass">${S.classes.map(x => `<option value="${x.id}" ${c && x.id === c.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
       <span class="hint">Muốn đổi quà: bấm tên học sinh ở trang Lớp học.</span></div>
