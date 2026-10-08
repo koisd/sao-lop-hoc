@@ -562,6 +562,12 @@ function renderSettings() {
       <div class="row ${S.lock.mode === 'key' ? '' : 'hidden'}">Phím mở khóa: <input type="text" class="w-ic" maxlength="1" value="${esc(S.lock.key)}" data-edit="lockkey"> <span class="hint">nên chọn phím ít ai để ý, VD: A, Q, Z</span></div>
       <p class="hint">Mọi thao tác cộng / trừ / đổi quà / hoàn tác / vào Cài đặt đều phải mở khóa.</p></div>
 
+    <div class="box"><h3>🔑 Danh sách lớp trên web</h3>
+      <p class="hint">${S.dsUpdated ? `✔ Máy này đã mở danh sách. Bản danh sách mới nhất: <b>${new Date(S.dsUpdated).toLocaleString('vi-VN')}</b>. Mỗi lần mở web sẽ tự cập nhật, số sao giữ nguyên.` : 'Gõ mật khẩu 1 lần, sau đó mỗi lần mở web các lớp sẽ tự cập nhật.'}</p>
+      ${localStorage.getItem(PW_KEY) ? `<div class="row" style="flex-wrap:wrap"><button class="btn soft" data-act="dsReload">🔄 Tải lại danh sách</button><button class="btn soft" data-act="dsForget">Quên mật khẩu trên máy này</button></div>`
+        : `<div class="row"><input type="password" id="dsPw" class="f" placeholder="Mật khẩu danh sách"><button class="btn soft" data-act="dsOpen">Mở</button></div>`}
+    </div>
+
     <div class="box"><h3>💾 Dữ liệu</h3>
       <p class="hint">Dữ liệu lưu trong trình duyệt của máy đang dùng. Máy trường hay bị xóa → cuối buổi bấm <b>Xuất file</b>, lưu vào USB / Google Drive; hôm sau mở web, bấm <b>Nhập file</b> là có lại.</p>
       <div class="row" style="flex-wrap:wrap">
@@ -668,6 +674,9 @@ function runAct(el) {
     case 'delReason': (d.sign === '1' ? S.reasons.plus : S.reasons.minus).splice(+d.i, 1); save(); return renderSettings();
     case 'addReward': S.rewards.push({ id: uid(), name: 'Quà mới', ic: '🎁', cost: 30 }); save(); return renderSettings();
     case 'delReward': S.rewards.splice(+d.i, 1); save(); return renderSettings();
+    case 'dsOpen': { const pw = document.getElementById('dsPw').value; if (!pw) return toast('Nhập mật khẩu'); return syncDS(pw, true); }
+    case 'dsReload': return syncDS(localStorage.getItem(PW_KEY), true);
+    case 'dsForget': try { localStorage.removeItem(PW_KEY); } catch (e) {} renderSettings(); return toast('Đã quên mật khẩu trên máy này');
     case 'export': return exportData();
     case 'import': return document.getElementById('impFile').click();
     case 'wipe': if (!confirmInline(el, 'Xóa SẠCH mọi lớp, học sinh, sao?')) return; S = defaults(); S.classes = []; S.cur = null; save(); renderAll(); return toast('Đã xóa hết');
@@ -938,8 +947,60 @@ function playShortcut(sc, btn) {
   }, t + 2200));
 }
 
+/* ================== Danh sách lớp trên web (mã hóa AES-GCM) ================== */
+const PW_KEY = 'saoLopHoc_pw';
+const b64d = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decryptDS(enc, pw) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64d(enc.salt), iterations: enc.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(enc.iv) }, key, b64d(enc.data));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+async function syncDS(pw, manual) {
+  let enc;
+  try { const r = await fetch('ds.enc.json?t=' + Date.now(), { cache: 'no-store' }); if (!r.ok) throw 0; enc = await r.json(); }
+  catch (e) { if (manual) toast('Không tải được danh sách — kiểm tra mạng'); return; }
+  let ds;
+  try { ds = await decryptDS(enc, pw); }
+  catch (e) { if (manual) toast('❌ Sai mật khẩu'); return; }
+  try { localStorage.setItem(PW_KEY, pw); } catch (e) {}
+  const changed = mergeDS(ds) || S.dsUpdated !== ds.updated;
+  S.dsUpdated = ds.updated; save();
+  if (changed || manual) renderAll();
+  if (manual) toast(`✔ Đã cập nhật ${ds.classes.length} lớp`);
+}
+/* Gộp danh sách từ web vào dữ liệu trên máy: thêm / đổi tên / bớt học sinh, giữ nguyên số sao */
+function mergeDS(ds) {
+  let changed = false;
+  const relabel = (field, from, to) => S.log.forEach(l => { if (l[field] === from) l[field] = to; });
+  ds.classes.forEach(rc => {
+    let lc = S.classes.find(c => c.id === rc.id) || S.classes.find(c => !c.web && c.name === rc.name);
+    if (!lc) { lc = { id: rc.id, name: rc.name, students: [] }; S.classes.push(lc); changed = true; }
+    if (lc.id !== rc.id) { relabel('c', lc.id, rc.id); if (S.cur === lc.id) S.cur = rc.id; lc.id = rc.id; changed = true; }
+    lc.web = true;
+    if (lc.name !== rc.name) { lc.name = rc.name; changed = true; }
+    rc.students.forEach(rs => {
+      let ls = lc.students.find(x => x.id === rs.id) || lc.students.find(x => !x.web && x.name === rs.name);
+      if (!ls) { ls = { id: rs.id, name: rs.name, stars: 0, earned: 0 }; lc.students.push(ls); changed = true; }
+      if (ls.id !== rs.id) { relabel('s', ls.id, rs.id); ls.id = rs.id; changed = true; }
+      ls.web = true;
+      if (ls.name !== rs.name) { ls.name = rs.name; changed = true; }
+    });
+    const keep = new Set(rc.students.map(x => x.id)); const n = lc.students.length;
+    lc.students = lc.students.filter(x => !x.web || keep.has(x.id));
+    if (lc.students.length !== n) changed = true;
+  });
+  const cids = new Set(ds.classes.map(c => c.id)); const n = S.classes.length;
+  S.classes = S.classes.filter(c => (!c.web || cids.has(c.id)) && !(c.name === 'Lớp mẫu' && !c.web && !S.log.some(l => l.c === c.id)));
+  if (S.classes.length !== n) changed = true;
+  if (!S.classes.find(c => c.id === S.cur)) S.cur = S.classes[0] && S.classes[0].id;
+  return changed;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'dsPw') document.querySelector('[data-act=dsOpen]').click(); });
+
 /* ================== Khởi động ================== */
 renderAll();
+{ let pw = null; try { pw = localStorage.getItem(PW_KEY); } catch (e) {} if (pw) syncDS(pw, false); }
 </script>
 </body>
 </html>
