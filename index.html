@@ -77,6 +77,15 @@ main{padding:16px 18px 40px;max-width:1500px;margin:0 auto}
 .bar{height:6px;border-radius:9px;background:#f0eadf;overflow:hidden}
 .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffcf3f,var(--star));border-radius:9px}
 
+/* lọc theo chữ cái */
+.filter{position:sticky;top:58px;z-index:10;background:var(--bg);padding:6px 0 10px;margin-bottom:4px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.filter input{padding:7px 12px;border-radius:12px;border:2px solid var(--line);background:#fff;width:200px}
+.filter input:focus{outline:none;border-color:var(--brand)}
+.letters{display:flex;gap:5px;flex-wrap:wrap}
+.letters button{min-width:38px;padding:4px 9px;border-radius:10px;background:var(--panel);box-shadow:var(--shadow);font-weight:800;font-size:18px}
+.letters button.all{font-size:15px}
+.letters button.on{background:var(--brand);color:#fff}
+.letters button:not(.on):hover{background:var(--brand-soft)}
 /* hold-to-confirm fill */
 [data-guard].charging::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.45);transform-origin:left;animation:charge var(--hold-ms,900ms) linear forwards;pointer-events:none}
 @keyframes charge{from{transform:scaleX(0)}to{transform:scaleX(1)}}
@@ -407,7 +416,7 @@ function renderClasses() {
     const prev = [...S.rewards].sort((a, b) => b.cost - a.cost).find(r => r.cost <= st.stars);
     const pct = nr ? Math.max(0, Math.min(100, st.stars / nr.cost * 100)) : 100;
     const nextTxt = nr ? `Còn ${nr.cost - st.stars}⭐ → ${nr.ic} ${esc(nr.name)}` : '🏆 Đủ sao đổi mọi quà!';
-    return `<div class="card ${net > 0 ? 'pos' : net < 0 ? 'neg' : ''}" data-sid="${st.id}">
+    return `<div class="card ${net > 0 ? 'pos' : net < 0 ? 'neg' : ''}" data-sid="${st.id}" data-l="${firstLetter(st.name)}" data-q="${esc(norm(st.name))}">
       <button class="name" data-act="student" data-sid="${st.id}">${esc(st.name)}</button>
       <div class="stars ${st.stars < 0 ? 'negv' : ''}">⭐ ${st.stars}</div>
       <div class="today">${chips || 'Hôm nay: chưa có'}</div>
@@ -447,10 +456,26 @@ function renderClasses() {
       <button class="btn minus" data-act="allMinus" data-guard>− Trừ cả lớp</button>
       <button class="btn plus" data-act="allPlus" data-guard>+ Cộng cả lớp</button>
     </div>
-    ${c.students.length ? `<div class="grid">${cards}</div>` : `<div class="empty">Lớp chưa có học sinh. Vào ⚙️ Cài đặt → dán danh sách tên.</div>`}
+    ${c.students.length ? `<div class="filter"><input type="search" id="q" placeholder="🔍 Tìm tên…" value="${esc(fQuery)}" autocomplete="off">
+      <div class="letters"><button class="all ${fLetter ? '' : 'on'}" data-act="letter" data-l="">Tất cả</button>${[...new Set(c.students.map(x => firstLetter(x.name)))].sort((a, b) => a.localeCompare(b, 'vi')).map(l => `<button class="${l === fLetter ? 'on' : ''}" data-act="letter" data-l="${l}">${l}</button>`).join('')}</div></div>
+      <div class="grid">${cards}</div><div class="empty hidden" id="noMatch">Không có bạn nào khớp.</div>` : `<div class="empty">Lớp chưa có học sinh. Vào ⚙️ Cài đặt → dán danh sách tên.</div>`}
     <div class="logbox"><h3>📋 Hôm nay ${d.slice(8)}/${d.slice(5, 7)} &nbsp;<span class="chip p">${fmtN(totP) || '0'}⭐</span> <span class="chip m">${totM ? fmtN(totM) : '0'}⭐</span></h3>${logHtml}</div>
   </div></div>`;
+  applyFilter();
 }
+let fLetter = '', fQuery = '';
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+function firstLetter(name) { const t = lastName(name).charAt(0).toUpperCase(); return t === 'Đ' ? 'Đ' : norm(t).toUpperCase(); }
+function applyFilter() {
+  const q = norm(fQuery.trim()); let n = 0;
+  document.querySelectorAll('#p-classes .card').forEach(el => {
+    const show = (!fLetter || el.dataset.l === fLetter) && (!q || el.dataset.q.includes(q));
+    el.classList.toggle('hidden', !show); if (show) n++;
+  });
+  document.querySelectorAll('.letters button').forEach(b => b.classList.toggle('on', b.dataset.l === fLetter));
+  const nm = document.getElementById('noMatch'); if (nm) nm.classList.toggle('hidden', n > 0);
+}
+document.addEventListener('input', e => { if (e.target.id === 'q') { fQuery = e.target.value; applyFilter(); } });
 function lastName(n) { const p = n.trim().split(/\s+/); return p[p.length - 1] || n; }
 
 /* ================== Modal ================== */
@@ -636,7 +661,8 @@ function runAct(el) {
   const d = el.dataset; const c = curClass();
   switch (d.act) {
     case 'tab': return showTab(d.tab);
-    case 'cls': S.cur = d.cid; save(); renderClasses(); if (!document.getElementById('p-settings').classList.contains('hidden')) renderSettings(); return;
+    case 'letter': fLetter = fLetter === d.l ? '' : d.l; return applyFilter();
+    case 'cls': fLetter = ''; fQuery = ''; S.cur = d.cid; save(); renderClasses(); if (!document.getElementById('p-settings').classList.contains('hidden')) renderSettings(); return;
     case 'plus': return openReason(d.sid, 1);
     case 'minus': return openReason(d.sid, -1);
     case 'allPlus': return openReason('all', 1);
