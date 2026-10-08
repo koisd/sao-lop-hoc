@@ -1,0 +1,72 @@
+/* ===== Tìm kiếm (máy tìm kiếm kiểu thật) ===== */
+.tk-sugg{font-weight:700;color:var(--muted)}
+#tkAds.on{background:var(--minus);color:#fff}
+.tk-cw .cw-page{min-height:560px}
+.tk-tabfav{width:16px;height:16px;border-radius:50%;background:conic-gradient(#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0);color:#fff;font:700 10px/16px Arial,sans-serif;text-align:center}
+.tk-logo{font-family:"Product Sans","Segoe UI",Arial,sans-serif;font-weight:500;font-size:84px;letter-spacing:-3px;line-height:1;user-select:none;cursor:pointer}
+.tk-logo i{font-style:normal}
+.tk-logo.sm{font-size:30px;letter-spacing:-1px}
+.tk-box{display:flex;align-items:center;gap:6px;border:1px solid #dfe1e5;border-radius:24px;height:46px;padding:0 14px;background:#fff;color:#9aa0a6;flex:1;max-width:690px}
+.tk-box:hover,.tk-box:focus-within{box-shadow:0 1px 6px rgba(32,33,36,.28);border-color:rgba(223,225,229,0)}
+.tk-box input{flex:1;border:0;outline:none;font:17px "Segoe UI",Roboto,Arial,sans-serif;color:#202124;background:none;min-width:0;padding:0;box-shadow:none}
+.tk-mic{color:#4285f4;display:flex}
+.tk-cam{color:#34a853;display:flex}
+.tk-clr{color:#70757a;display:flex;cursor:pointer}
+.tk-sep{width:1px;height:28px;background:#dadce0;margin:0 4px}
+.tk-apps{width:24px;height:24px;flex-shrink:0;background:radial-gradient(circle,#5f6368 2px,transparent 2.5px) 0 0/8px 8px;font-size:0}
+
+/* trang chủ */
+.tk-home{display:flex;flex-direction:column;min-height:560px}
+.tk-hnav{display:flex;justify-content:flex-end;align-items:center;gap:16px;padding:12px 18px;font-size:14px}
+.tk-hnav a{color:#202124;cursor:pointer}
+.tk-hnav a:hover{text-decoration:underline}
+.tk-hmain{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:0 20px 60px}
+.tk-hmain .tk-box{width:100%;max-width:584px;flex:none}
+.tk-hbtn{display:flex;gap:12px;margin-top:-6px}
+.tk-gbtn{background:#f8f9fa;border:1px solid #f8f9fa;border-radius:4px;color:#3c4043;font:14px "Segoe UI",Arial,sans-serif;padding:0 16px;height:36px}
+.tk-gbtn:hover{border-color:#dadce0;box-shadow:0 1px 1px rgba(0,0,0,.1)}
+.tk-lang{font-size:13px;color:#4d5156}
+.tk-lang a{color:#1a0dab;margin:0 3px;cursor:pointer}
+.tk-foot{background:#f2f2f2;color:#70757a;font-size:14px}
+.tk-foot>span{display:block;padding:12px 26px;border-bottom:1px solid #dadce0}
+.tk-foot div{display:flex;gap:26px;padding:12px 26px}
+
+/* trang kết quả */
+.tk-head{display:flex;align-items:center;gap:26px;padding:18px 22px 10px}
+.tk-head .tk-box{height:44px}
+.tk-head .cw-av{margin-left:auto}
+.tk-tabs{display:flex;gap:4px;padding:0 0 0 152px;border-bottom:1px solid #ebebeb;font-size:14px}
+.tk-tabs a{display:flex;align-items:center;gap:4px;padding:10px 12px;color:#5f6368;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+.tk-tabs a.on{color:#1a73e8;border-bottom-color:#1a73e8;font-weight:600}
+.tk-tabs span{flex:1}
+.tk-main{padding:10px 22px 30px 174px;max-width:900px}
+@media (max-width:900px){.tk-tabs{padding-left:10px;overflow:auto}.tk-main{padding-left:22px}.tk-head{flex-wrap:wrap;gap:12px}}
+.tk-count{color:#70757a;font-size:14px;margin:4px 0 18px}
+.tk-item{display:flex;gap:16px;align-items:flex-start;padding:8px 12px;margin:0 -12px 18px;border-radius:12px;border:3px solid transparent;position:relative;max-width:652px}
+.tk-txt{flex:1;min-width:0}
+.tk-src{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+.tk-fav{width:28px;height:28px;border-radius:50%;color:#fff;font:700 14px/28px Arial,sans-serif;text-align:center;flex-shrink:0;box-shadow:0 0 0 1px #ecedef,inset 0 0 0 3px #fff}
+.tk-site{font-size:14px;color:#202124;line-height:1.3}
+.tk-url{font-size:12.5px;color:#4d5156;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tk-dots{color:#70757a;margin-left:6px}
+.tk-t{display:block;color:#1a0dab;font-size:20px;line-height:1.3;cursor:pointer;padding-top:2px}
+.tk-t:hover{text-decoration:underline}
+.tk-d{color:#4d5156;font-size:14.5px;line-height:1.58;margin-top:3px}
+.tk-thumb{width:96px;height:96px;object-fit:cover;border-radius:8px;flex-shrink:0;margin-top:34px}
+.tk-adtag{font-weight:700;font-size:14px;color:#202124;margin-bottom:6px}
+.tk-item.mark{border-color:var(--minus);background:#fff4f4}
+.tk-item.mark::after{content:"📢 QUẢNG CÁO";position:absolute;right:10px;top:8px;background:var(--minus);color:#fff;font:800 14px "Baloo 2",sans-serif;padding:2px 10px;border-radius:999px}
+.tk-paa,.tk-relbox{max-width:652px;margin:6px 0 24px}
+.tk-paa h3,.tk-relbox h3{font-size:20px;font-weight:400;color:#202124;margin:0 0 10px}
+.tk-paa button{display:flex;width:100%;justify-content:space-between;align-items:center;padding:14px 4px;border-top:1px solid #dadce0;font-size:16px;color:#202124;text-align:left}
+.tk-paa button:last-child{border-bottom:1px solid #dadce0}
+.tk-paa button .ico{color:#70757a}
+.tk-paa button:hover{background:#f8f9fa}
+.tk-rel{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.tk-rel button{display:flex;align-items:center;gap:12px;background:#f1f3f4;border-radius:999px;padding:10px 16px;font-size:15px;color:#202124;text-align:left}
+.tk-rel button .ico{color:#70757a}
+.tk-rel button:hover{background:#e8eaed}
+.tk-none{font-size:15px;color:#202124;max-width:652px}
+.tk-pages{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:16px;max-width:652px}
+.tk-pages div{display:flex;gap:18px;font-size:15px}
+.tk-pages a{color:#1a0dab;cursor:pointer}

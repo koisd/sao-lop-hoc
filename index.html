@@ -6,7 +6,17 @@
 <title>Sao Lớp Học</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link href="bai-giang/bai-giang.css" rel="stylesheet">
+<link href="bai-giang/bai-giang.css?v=2" rel="stylesheet">
+<link href="bai-giang/trinh-duyet.css?v=2" rel="stylesheet">
+<link href="bai-giang/tim-kiem.css?v=2" rel="stylesheet">
+<link href="bai-giang/nhap-xuat.css?v=2" rel="stylesheet">
+<link href="bai-giang/trang-chieu.css?v=2" rel="stylesheet">
+<link href="bai-giang/url.css?v=2" rel="stylesheet">
+<link href="bai-giang/internet-ip.css?v=2" rel="stylesheet">
+<link href="bai-giang/bang-tinh.css?v=2" rel="stylesheet">
+<link href="bai-giang/email.css?v=2" rel="stylesheet">
+<link href="bai-giang/rieng-tu.css?v=2" rel="stylesheet">
+<link href="bai-giang/tinh-huong.css?v=2" rel="stylesheet">
 <style>
 :root{
   --bg:#fff8ec; --panel:#ffffff; --ink:#2b2340; --muted:#7a7090; --line:#eadfcf;
@@ -253,17 +263,17 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 </form></div>
 
 <!-- Bài giảng tương tác: mỗi bài 1 file, muốn bỏ bài nào thì xóa dòng của bài đó -->
-<script src="bai-giang/core.js"></script>
-<script src="bai-giang/trinh-duyet.js"></script>
-<script src="bai-giang/tim-kiem.js"></script>
-<script src="bai-giang/nhap-xuat.js"></script>
-<script src="bai-giang/trang-chieu.js"></script>
-<script src="bai-giang/url.js"></script>
-<script src="bai-giang/internet-ip.js"></script>
-<script src="bai-giang/bang-tinh.js"></script>
-<script src="bai-giang/email.js"></script>
-<script src="bai-giang/rieng-tu.js"></script>
-<script src="bai-giang/tinh-huong.js"></script>
+<script src="bai-giang/core.js?v=2"></script>
+<script src="bai-giang/trinh-duyet.js?v=2"></script>
+<script src="bai-giang/tim-kiem.js?v=2"></script>
+<script src="bai-giang/nhap-xuat.js?v=2"></script>
+<script src="bai-giang/trang-chieu.js?v=2"></script>
+<script src="bai-giang/url.js?v=2"></script>
+<script src="bai-giang/internet-ip.js?v=2"></script>
+<script src="bai-giang/bang-tinh.js?v=2"></script>
+<script src="bai-giang/email.js?v=2"></script>
+<script src="bai-giang/rieng-tu.js?v=2"></script>
+<script src="bai-giang/tinh-huong.js?v=2"></script>
 <script>
 /* ================== Dữ liệu ================== */
 const STORE = 'saoLopHoc_v1';
@@ -706,6 +716,8 @@ function runAct(el) {
     case 'close': return closeModal();
     case 'lesson': curLesson = d.id; renderLessons(); return window.scrollTo(0, 0);
     case 'lessonBack': curLesson = null; return renderLessons();
+    case 'lsK': lsK = +d.k; return lessonResults();
+    case 'lsTry': { const q = document.getElementById('lsQ'); q.value = lsQ = d.q; lessonResults(); return q.focus(); }
     case 'sort': S.sort = S.sort === 'stars' ? 'name' : 'stars'; save(); return renderClasses();
     case 'addClass': {
       const v = document.getElementById('newClass').value.trim(); if (!v) return toast('Nhập tên lớp');
@@ -774,12 +786,63 @@ function renderLessons() {
     catch (e) { document.getElementById('bgBody').innerHTML = '<div class="empty">Bài này bị lỗi, báo lại để sửa nhé.</div>'; console.error(e); }
     return;
   }
-  el.innerHTML = [4, 5].map(k => {
-    const tag = k === 4 ? 'LV2' : 'LV3';
-    return `<h2 class="bg-group">Khối ${k} <small>IC3 Spark ${tag}</small></h2><div class="bg-menu">${L.filter(l => l.khoi.includes(k)).map(l => `<button class="bg-card" data-act="lesson" data-id="${l.id}">
-      <span class="ic">${l.icon}</span><b>${esc(l.title)}</b><small>${esc(l.desc)}</small>
-      <span class="tp">${l.topics.filter(t => t.startsWith(tag)).map(esc).join('<br>')}</span></button>`).join('')}</div>`;
+  if (!el.querySelector('#lsQ')) {
+    el.innerHTML = `<div class="ls-bar"><label class="ls-q">🔎<input id="lsQ" type="search" autocomplete="off" spellcheck="false" placeholder="Tìm bài: tên bài, chủ đề, từ khóa… (vd: email, biểu đồ, F5, CĐ 12)"></label>
+      <div class="ls-k">${[[0, 'Tất cả'], [4, 'Khối 4'], [5, 'Khối 5']].map(([k, t]) => `<button data-act="lsK" data-k="${k}">${t}</button>`).join('')}</div></div><div id="lsRes"></div>`;
+    const q = el.querySelector('#lsQ'); q.value = lsQ;
+    q.addEventListener('input', () => { lsQ = q.value; lessonResults(); });
+    q.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape') { q.value = lsQ = ''; lessonResults(); }
+      if (ev.key === 'Enter') { const f = el.querySelector('#lsRes .bg-card'); if (f) f.click(); }
+    });
+  }
+  lessonResults();
+}
+/* từ khóa thêm cho ô tìm bài (ngoài tên, mô tả, chủ đề, gợi ý dạy) */
+const LESSON_KEYS = {
+  'trinh-duyet': 'chrome edge cốc cốc firefox back forward quay lại tiến tới tải lại refresh reload f5 bookmark dấu trang trang chủ home thanh địa chỉ lịch sử mạng chậm 404',
+  'tim-kiem': 'google search tìm kiếm từ khóa keyword kết quả quảng cáo được tài trợ từ đồng nghĩa tinh chỉnh máy tìm kiếm',
+  'nhap-xuat': 'thiết bị phần cứng chuột bàn phím màn hình máy in loa micro tai nghe webcam camera máy quét input output',
+  'trang-chieu': 'powerpoint word slide trình chiếu văn bản in đậm in nghiêng gạch chân căn lề căn giữa bullet đánh số chú thích header footer đầu trang chân trang số trang tài liệu',
+  'url': 'địa chỉ web tên miền domain đuôi .vn .com .gov .edu https giao thức trang giả trang đáng tin lừa đảo',
+  'internet-ip': 'internet ip dns máy chủ server gói dữ liệu packet mạng cáp router đường truyền kết nối',
+  'bang-tinh': 'excel bảng tính ô hàng cột công thức sum tổng biểu đồ cột đường tròn chart dữ liệu',
+  'email': 'gmail thư điện tử email gửi thư người nhận cc chủ đề chữ ký đính kèm lừa đảo phishing link lạ virus',
+  'rieng-tu': 'facebook mạng xã hội đăng bài quyền riêng tư công khai bạn bè vị trí check-in dấu chân số cài đặt',
+  'tinh-huong': 'zalo messenger tin nhắn bắt nạt người lạ ứng xử nghi thức xin phép đăng ảnh thời gian màn hình catfishing an toàn',
+};
+let lsQ = '', lsK = 0;
+/* tô vàng phần khớp trong chữ gốc (so khớp không dấu) */
+function lsMark(txt, terms) {
+  const ch = [...String(txt)], nm = ch.map(c => BG.norm(c) || c), on = new Array(ch.length).fill(false);
+  const flat = nm.join(''), pos = []; let acc = 0; nm.forEach(n => { pos.push(acc); acc += n.length; });
+  terms.filter(t => t.length > 1).forEach(t => { let i = flat.indexOf(t); while (t && i >= 0) { ch.forEach((_, j) => { if (pos[j] >= i && pos[j] < i + t.length) on[j] = true; }); i = flat.indexOf(t, i + t.length); } });
+  let out = '', open = false;
+  ch.forEach((c, j) => { if (on[j] !== open) { out += on[j] ? '<mark>' : '</mark>'; open = on[j]; } out += esc(c); });
+  return out + (open ? '</mark>' : '');
+}
+function lessonResults() {
+  const el = document.getElementById('lsRes'); if (!el) return;
+  const L = (window.BG && BG.list) || [];
+  document.querySelectorAll('#p-lessons [data-act=lsK]').forEach(b => b.classList.toggle('on', +b.dataset.k === lsK));
+  const terms = BG.norm(lsQ).split(/\s+/).filter(Boolean);
+  const strip = h => String(h || '').replace(/<[^>]+>/g, ' ');
+  const scored = L.map(l => {
+    if (!terms.length) return { l, sc: 1 };
+    const t = BG.norm(l.title), d = BG.norm(l.desc + ' ' + l.topics.join(' ')), x = BG.norm((LESSON_KEYS[l.id] || '') + ' ' + (l.keys || '') + ' ' + strip(l.tip));
+    let sc = 0;
+    for (const w of terms) { const s = t.includes(w) ? 10 : d.includes(w) ? 4 : x.includes(w) ? 1 : 0; if (!s) return { l, sc: 0 }; sc += s; }
+    return { l, sc };
+  }).filter(r => r.sc > 0).sort((a, b) => b.sc - a.sc);
+  const card = (l, tag) => `<button class="bg-card" data-act="lesson" data-id="${l.id}">
+      <span class="ic">${l.icon}</span><b>${lsMark(l.title, terms)}</b><small>${lsMark(l.desc, terms)}</small>
+      <span class="tp">${l.topics.filter(t => t.startsWith(tag)).map(t => lsMark(t, terms)).join('<br>')}</span></button>`;
+  const groups = (lsK ? [lsK] : [4, 5]).map(k => {
+    const tag = k === 4 ? 'LV2' : 'LV3', items = scored.filter(r => r.l.khoi.includes(k));
+    if (!items.length) return terms.length ? '' : `<h2 class="bg-group">Khối ${k}</h2><div class="empty">Chưa có bài.</div>`;
+    return `<h2 class="bg-group">Khối ${k} <small>IC3 Spark ${tag}${terms.length ? ` · ${items.length} bài khớp` : ''}</small></h2><div class="bg-menu">${items.map(r => card(r.l, tag)).join('')}</div>`;
   }).join('');
+  el.innerHTML = groups || `<div class="ls-none">Không tìm thấy bài nào cho “<b>${esc(lsQ)}</b>”${lsK ? ` trong Khối ${lsK}` : ''}.<br>Thử: ${['email', 'biểu đồ', 'trình duyệt', 'bắt nạt', 'URL', 'chuột'].map(w => `<button class="bgchip" data-act="lsTry" data-q="${w}">${w}</button>`).join(' ')}</div>`;
 }
 
 /* ================== Tabs ================== */

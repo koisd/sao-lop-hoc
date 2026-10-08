@@ -45,16 +45,36 @@
     topics: ['LV2 GM1 · CĐ 5, 24: Bắt nạt trên mạng', 'LV2 GM1 · CĐ 18–19: Nghi thức · Bình tĩnh', 'LV2 GM1 · CĐ 23: Dùng thiết bị quá lâu', 'LV2 GM1 · CĐ 33: Tôn trọng và đồng cảm', 'LV2 GM2 · CĐ 16–17, 21, 26: Nghi thức · Upstander', 'LV2 GM2 · CĐ 20, 33: Màn hình · An toàn', 'LV3 GM1 · CĐ 23–24, 30: Xin phép đăng ảnh · Thời gian · Bắt nạt', 'LV3 GM2 · CĐ 10–11, 27: Catfishing · Công dân số · Xin phép'],
     tip: 'Mỗi tình huống: đọc to tin nhắn, cho cả lớp <b>giơ tay chọn</b> trước rồi mới bấm. Có thể bấm thử cả đáp án sai để xem giải thích. Lọc theo khối ở góc trên (Khối 4 không có tình huống catfishing).',
     render(root) {
+      const e = BG.esc, COL = ['#e4405f', '#1877f2', '#f59f00', '#12b886', '#7950f2', '#fd7e14', '#0ca678'];
+      const avatar = n => { const c = COL[[...n].reduce((a, ch) => a + ch.codePointAt(0), 0) % COL.length]; const L = [...n.replace(/[^\p{L}\p{N}]/gu, '')][0] || '?'; return `<span class="th-av" style="background:${c}">${e(L.toUpperCase())}</span>`; };
       let khoi = 0, list = SC, i = 0;
       root.innerHTML = `<div class="bg-row"><span>Hiện tình huống cho:</span>${[[0, 'Tất cả'], [4, 'Khối 4'], [5, 'Khối 5']].map(([k, t]) => `<button class="bgchip ${k === 0 ? 'on' : ''}" data-k="${k}">${t}</button>`).join('')}</div>
-        <div class="th-wrap"><div class="th-phone"><div class="th-head" id="thHead"></div><div class="th-chat" id="thChat"></div></div>
+        <div class="th-wrap"><div class="th-phone"><div class="th-screen">
+            <div class="th-status"><b>9:41</b><span class="th-notch"></span><span class="th-sig"><i></i><i></i><i></i><i></i></span><span class="th-wifi"></span><span class="th-bat"><i></i></span></div>
+            <div class="th-head" id="thHead"></div><div class="th-chat" id="thChat"></div>
+            <div class="th-input"><span class="th-ib">${BG.svg('add', 22)}</span><span class="th-ib">${BG.svg('camera', 22)}</span><span class="th-ib">${BG.svg('image', 22)}</span><span class="th-aa">Aa<span>${BG.svg('smile', 20)}</span></span><span class="th-ib">${BG.svg('like', 22)}</span></div>
+            <div class="th-home"></div></div></div>
           <div class="th-side"><div class="th-tag" id="thTag"></div><div class="th-q" id="thQ"></div><div class="th-opts" id="thOpts"></div><div class="bg-explain" id="thEx">Chọn một cách ứng xử.</div>
             <div class="bg-row"><button class="bgbtn soft" id="thPrev">◀ Trước</button><span id="thN" class="nx-score"></span><button class="bgbtn" id="thNext">Tình huống tiếp ▶</button></div></div></div>`;
       const $ = s => root.querySelector(s);
       function paint() {
         const s = list[i];
-        $('#thHead').textContent = s.title;
-        $('#thChat').innerHTML = s.chat.map(([who, msg]) => `<div class="th-msg ${who === 'Em' ? 'me' : ''}">${who === 'Em' ? '' : `<b>${who}</b>`}${msg}</div>`).join('');
+        const others = [...new Set(s.chat.map(c => c[0]).filter(w => w !== 'Em'))];
+        const group = others.length > 1, name = group ? s.title : (others[0] || s.title);
+        $('#thHead').innerHTML = others.length ? `<span class="th-backb">${BG.svg('back', 24)}</span>${group ? `<span class="th-av grp">${others.slice(0, 2).map(avatar).join('')}</span>` : avatar(name)}
+          <span class="th-who"><b>${e(name)}</b><small>${group ? others.length + 1 + ' thành viên' : '● Đang hoạt động'}</small></span>
+          <span class="th-hb">${BG.svg('phone', 22)}</span><span class="th-hb">${BG.svg('video', 24)}</span>`
+          : `<span class="th-backb">${BG.svg('back', 24)}</span><span class="th-who solo"><b>${e(name)}</b><small>Điều em đang làm</small></span><span class="th-hb">${BG.svg('more', 22)}</span>`;
+        let h = 20, m = 14, prev = null;
+        $('#thChat').innerHTML = `<div class="th-day">Hôm nay</div>` + s.chat.map(([who, msg], j) => {
+          const me = who === 'Em', next = s.chat[j + 1], last = !next || next[0] !== who, first = prev !== who; prev = who;
+          const t = `${h}:${String(m += 1 + j).padStart(2, '0')}`;
+          if (me && /^[(⏰]/.test(msg)) { prev = null; return `<div class="th-note">${msg.replace(/^\(|\)$/g, '')}</div>`; }
+          const photo = /^📷\s*\[(.*)\]$/.exec(msg);
+          const inner = photo ? `<div class="th-photo"><span>${BG.svg('image', 46)}</span><i>${e(photo[1])}</i></div>` : `<div class="th-bub">${msg}</div>`;
+          return `<div class="th-row ${me ? 'me' : ''} ${first ? 'first' : ''} ${last ? 'last' : ''}">${!me ? `<span class="th-sav">${last ? avatar(who) : ''}</span>` : ''}
+            <div class="th-col">${!me && group && first ? `<span class="th-name">${e(who)}</span>` : ''}${inner}${last ? `<span class="th-time">${t}${me ? ' · Đã xem' : ''}</span>` : ''}</div></div>`;
+        }).join('');
         $('#thTag').textContent = s.tag; $('#thQ').textContent = s.q;
         $('#thOpts').innerHTML = s.opts.map((o, j) => `<button class="th-o" data-o="${j}"><span>${'ABCD'[j]}</span>${o[0]}</button>`).join('');
         $('#thEx').innerHTML = 'Chọn một cách ứng xử.'; $('#thN').textContent = `${i + 1} / ${list.length}`;
