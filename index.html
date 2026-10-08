@@ -140,7 +140,6 @@ h4{margin:14px 0 6px;font-size:18px}
 .prize{background:var(--panel);border-radius:20px;padding:16px;box-shadow:var(--shadow);flex:1 1 180px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px}
 .prize .pimg{width:100%;max-width:240px;aspect-ratio:1;object-fit:cover;border-radius:16px;margin-bottom:6px}
 .gift .gimg{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
-.credit{font-size:12px;margin:-10px 0 18px}
 .prize .ic{font-size:52px;line-height:1}
 .prize .nm{font-size:22px;font-weight:800}
 .prize .cost{font-size:26px;font-weight:800;color:var(--star)}
@@ -287,7 +286,7 @@ function defaults() {
     rewards: [
       { id: uid(), name: 'Sticker', ic: '🌟', cost: 15, img: 'img/sticker-meo.jpg' },
       { id: uid(), name: 'Squishy', ic: '🍡', cost: 60, img: 'img/squishy-mochi.jpg' },
-      { id: uid(), name: 'LEGO', ic: '🧱', cost: 200, img: 'img/lego.jpg' },
+      { id: uid(), name: 'LEGO', ic: '🧱', cost: 200, img: 'img/lego-ferrari.jpg' },
     ],
     lock: { mode: 'key', key: 'a' },
     cur: null,
@@ -303,8 +302,8 @@ let S = load() || defaults();
 // bản cũ để LEGO 999⭐ → đổi về 200⭐
 S.rewards.forEach(r => { if (r.name === 'LEGO' && r.cost === 999) r.cost = 200; });
 // gắn ảnh có sẵn cho 3 món quà mặc định
-const REWARD_IMG = { sticker: 'img/sticker-meo.jpg', squishy: 'img/squishy-mochi.jpg', lego: 'img/lego.jpg' };
-S.rewards.forEach(r => { const k = r.name.trim().toLowerCase(); if (REWARD_IMG[k] && (!r.img || r.img === 'img/sticker.jpg' || r.img === 'img/squishy.jpg')) r.img = REWARD_IMG[k]; });
+const REWARD_IMG = { sticker: 'img/sticker-meo.jpg', squishy: 'img/squishy-mochi.jpg', lego: 'img/lego-ferrari.jpg' };
+S.rewards.forEach(r => { const k = r.name.trim().toLowerCase(); if (REWARD_IMG[k] && (!r.img || ['img/sticker.jpg', 'img/squishy.jpg', 'img/lego.jpg'].includes(r.img))) r.img = REWARD_IMG[k]; });
 const rwPic = (r, cls) => r.img ? `<img class="${cls}" src="${esc(r.img)}" alt="${esc(r.name)}" loading="lazy">` : `<div class="ic">${r.ic}</div>`;
 function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { toast('⚠️ Không lưu được vào trình duyệt — hãy Xuất file dự phòng'); } }
 
@@ -554,7 +553,6 @@ function renderRewards() {
   }
   el.innerHTML = `<div class="rw-head"><h2>🎁 Kho quà</h2></div>
     <div class="shelf">${shelf}</div>
-    <p class="hint credit">Ảnh LEGO: “Lego Color Bricks” – Alan Chia (Wikimedia Commons, CC BY-SA 2.0).</p>
     <div class="rw-head"><h2>🏆 Bảng sao</h2>
       <select id="rwClass">${S.classes.map(x => `<option value="${x.id}" ${c && x.id === c.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
       <span class="hint">Muốn đổi quà: bấm tên học sinh ở trang Lớp học.</span></div>
