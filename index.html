@@ -6,16 +6,16 @@
 <title>Sao Lớp Học</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link href="bai-giang/bai-giang.css?v=3" rel="stylesheet">
-<link href="bai-giang/trinh-duyet.css?v=3" rel="stylesheet">
-<link href="bai-giang/tim-kiem.css?v=3" rel="stylesheet">
-<link href="bai-giang/nhap-xuat.css?v=3" rel="stylesheet">
-<link href="bai-giang/trang-chieu.css?v=3" rel="stylesheet">
-<link href="bai-giang/url.css?v=3" rel="stylesheet">
-<link href="bai-giang/internet-ip.css?v=3" rel="stylesheet">
-<link href="bai-giang/bang-tinh.css?v=3" rel="stylesheet">
-<link href="bai-giang/email.css?v=3" rel="stylesheet">
-<link href="bai-giang/rieng-tu.css?v=3" rel="stylesheet">
+<link href="bai-giang/bai-giang.css?v=4" rel="stylesheet">
+<link href="bai-giang/trinh-duyet.css?v=4" rel="stylesheet">
+<link href="bai-giang/tim-kiem.css?v=4" rel="stylesheet">
+<link href="bai-giang/nhap-xuat.css?v=4" rel="stylesheet">
+<link href="bai-giang/trang-chieu.css?v=4" rel="stylesheet">
+<link href="bai-giang/url.css?v=4" rel="stylesheet">
+<link href="bai-giang/internet-ip.css?v=4" rel="stylesheet">
+<link href="bai-giang/bang-tinh.css?v=4" rel="stylesheet">
+<link href="bai-giang/email.css?v=4" rel="stylesheet">
+<link href="bai-giang/rieng-tu.css?v=4" rel="stylesheet">
 <style>
 :root{
   --bg:#fff8ec; --panel:#ffffff; --ink:#2b2340; --muted:#7a7090; --line:#eadfcf;
@@ -262,16 +262,16 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 </form></div>
 
 <!-- Bài giảng tương tác: mỗi bài 1 file, muốn bỏ bài nào thì xóa dòng của bài đó -->
-<script src="bai-giang/core.js?v=3"></script>
-<script src="bai-giang/trinh-duyet.js?v=3"></script>
-<script src="bai-giang/tim-kiem.js?v=3"></script>
-<script src="bai-giang/nhap-xuat.js?v=3"></script>
-<script src="bai-giang/trang-chieu.js?v=3"></script>
-<script src="bai-giang/url.js?v=3"></script>
-<script src="bai-giang/internet-ip.js?v=3"></script>
-<script src="bai-giang/bang-tinh.js?v=3"></script>
-<script src="bai-giang/email.js?v=3"></script>
-<script src="bai-giang/rieng-tu.js?v=3"></script>
+<script src="bai-giang/core.js?v=4"></script>
+<script src="bai-giang/trinh-duyet.js?v=4"></script>
+<script src="bai-giang/tim-kiem.js?v=4"></script>
+<script src="bai-giang/nhap-xuat.js?v=4"></script>
+<script src="bai-giang/trang-chieu.js?v=4"></script>
+<script src="bai-giang/url.js?v=4"></script>
+<script src="bai-giang/internet-ip.js?v=4"></script>
+<script src="bai-giang/bang-tinh.js?v=4"></script>
+<script src="bai-giang/email.js?v=4"></script>
+<script src="bai-giang/rieng-tu.js?v=4"></script>
 <script>
 /* ================== Dữ liệu ================== */
 const STORE = 'saoLopHoc_v1';
@@ -328,7 +328,134 @@ S.rewards.forEach(r => { if (r.name === 'LEGO' && r.cost === 999) r.cost = 200; 
 const REWARD_IMG = { sticker: 'img/sticker-meo.jpg', squishy: 'img/squishy-mochi.jpg', lego: 'img/lego-ferrari.jpg' };
 S.rewards.forEach(r => { const k = r.name.trim().toLowerCase(); if (REWARD_IMG[k] && (!r.img || ['img/sticker.jpg', 'img/squishy.jpg', 'img/lego.jpg'].includes(r.img))) r.img = REWARD_IMG[k]; });
 const rwPic = (r, cls) => r.img ? `<img class="${cls}" src="${esc(r.img)}" alt="${esc(r.name)}" loading="lazy">` : `<div class="ic">${r.ic}</div>`;
-function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { toast('⚠️ Không lưu được vào trình duyệt — hãy Xuất file dự phòng'); } }
+S.dead = S.dead || [];
+const cfgOf = x => JSON.stringify([x.reasons, x.rewards, x.lock]);
+let lastCfg = cfgOf(S);
+function save(noPush) {
+  const cf = cfgOf(S); if (cf !== lastCfg) { lastCfg = cf; S.cfgT = Date.now(); }
+  try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { toast('⚠️ Không lưu được vào trình duyệt — hãy Xuất file dự phòng'); }
+  if (!noPush) cloudPushSoon();
+}
+/* ================== Đồng bộ sao giữa các máy (Firebase Realtime Database, gói miễn phí) ==================
+   Mỗi lần cộng/trừ/đổi quà là 1 dòng nhật ký có id riêng → các máy gộp nhật ký lại (không trùng, không mất),
+   số sao của học sinh = tổng nhật ký. Hoàn tác / xóa thì ghi id vào "dead" để máy khác xóa theo.
+   Dữ liệu nằm ở nhánh có tên = mã băm của mật khẩu lớp, không biết mật khẩu thì không tìm ra. */
+const CLOUD_URL = 'https://sao-lop-hoc-default-rtdb.asia-southeast1.firebasedatabase.app';
+const CLOUD0 = () => ({ k: null, R: null, es: null, t: 0, st: 'off', timer: null, busy: false });
+let cloud = CLOUD0();
+function markDead(ids, logs) { ids.concat(logs.map(l => l.id)).forEach(id => { if (!S.dead.includes(id)) S.dead.push(id); }); }
+/* trước đây sao có thể sửa tay không ghi nhật ký → bù 1 dòng "số sao có sẵn" để tổng nhật ký khớp số sao */
+function migrateLog() {
+  const sum = {};
+  S.log.forEach(l => { const x = sum[l.s] = sum[l.s] || { n: 0, e: 0 }; x.n += l.n; if (l.k === 'pt' && l.n > 0) x.e += l.n; x.e += l.e || 0; });
+  S.classes.forEach(c => c.students.forEach(st => {
+    const x = sum[st.id] || { n: 0, e: 0 };
+    if (st.stars !== x.n || st.earned !== x.e) S.log.push({ id: uid(), t: Date.now(), d: dayKey(), c: c.id, s: st.id, n: st.stars - x.n, e: st.earned - x.e, r: 'Số sao có sẵn', ic: '📌', k: 'adj', mig: true });
+  }));
+}
+migrateLog();
+function recalc() {
+  const m = {}; S.classes.forEach(c => c.students.forEach(st => { st.stars = 0; st.earned = 0; m[c.id + '|' + st.id] = st; }));
+  S.log.forEach(l => { const st = m[l.c + '|' + l.s]; if (!st) return; st.stars += l.n; if (l.k === 'pt' && l.n > 0) st.earned += l.n; st.earned += l.e || 0; });
+}
+/* lớp / học sinh lấy từ danh sách web thì máy nào cũng tự có; chỉ gửi những lớp / học sinh thêm tay */
+const cloudClasses = () => S.classes.filter(c => !c.web || c.students.some(s => !s.web))
+  .map(c => ({ id: c.id, name: c.name, web: !!c.web, students: c.students.filter(s => !s.web).map(s => ({ id: s.id, name: s.name })) }));
+/* gộp dữ liệu trên mạng (R) vào máy; trả về true nếu có thay đổi */
+function mergeCloud(R) {
+  let ch = false;
+  const dead = new Set(S.dead);
+  Object.keys(R.dead || {}).forEach(id => { if (!dead.has(id)) { dead.add(id); S.dead.push(id); ch = true; } });
+  (R.classes || []).forEach(rc => {
+    if (dead.has(rc.id)) return;
+    let lc = S.classes.find(c => c.id === rc.id);
+    if (!lc) { if (rc.web) return; lc = { id: rc.id, name: rc.name, students: [] }; S.classes.push(lc); ch = true; }
+    (rc.students || []).forEach(rs => {
+      if (dead.has(rs.id) || lc.students.some(s => s.id === rs.id)) return;
+      lc.students.push({ id: rs.id, name: rs.name, stars: 0, earned: 0 }); ch = true;
+    });
+  });
+  const have = new Set(S.log.map(l => l.id));
+  Object.values(R.log || {}).forEach(l => { if (l && l.id && !have.has(l.id) && !dead.has(l.id)) { S.log.push(l); have.add(l.id); ch = true; } });
+  const n = S.log.length;
+  S.log = S.log.filter(l => !dead.has(l.id) && !dead.has(l.c) && !dead.has(l.s));
+  if (S.log.length !== n) ch = true;
+  const nc = S.classes.length;
+  S.classes = S.classes.filter(c => !dead.has(c.id));
+  S.classes.forEach(c => { const k = c.students.length; c.students = c.students.filter(s => !dead.has(s.id)); if (c.students.length !== k) ch = true; });
+  if (S.classes.length !== nc) ch = true;
+  if (!S.classes.find(c => c.id === S.cur)) S.cur = S.classes[0] && S.classes[0].id;
+  const rc = R.cfg;
+  if (rc && (rc.t || 0) > (S.cfgT || 0)) {
+    const nx = { reasons: { plus: (rc.reasons && rc.reasons.plus) || [], minus: (rc.reasons && rc.reasons.minus) || [] }, rewards: rc.rewards || [], lock: rc.lock || S.lock };
+    if (cfgOf(nx) !== cfgOf(S)) { Object.assign(S, nx); ch = true; }
+    S.cfgT = rc.t; lastCfg = cfgOf(S);
+  }
+  if (ch) { S.log.sort((a, b) => a.t - b.t); recalc(); }
+  return ch;
+}
+/* những gì trên mạng chưa có → gửi lên (1 lần PATCH nhiều nhánh) */
+function cloudDiff() {
+  const R = cloud.R || {}; const up = {};
+  const rl = R.log || {}, rd = R.dead || {}; const dead = new Set(S.dead);
+  S.log.forEach(l => { if (!rl[l.id]) up['log/' + l.id] = l; });
+  Object.keys(rl).forEach(id => { if (dead.has(id)) up['log/' + id] = null; });
+  S.dead.forEach(id => { if (!rd[id]) up['dead/' + id] = 1; });
+  const cc = cloudClasses();
+  const rcN = (R.classes || []).map(c => ({ id: c.id, name: c.name, web: !!c.web, students: (c.students || []).map(s => ({ id: s.id, name: s.name })) }));
+  if (JSON.stringify(cc) !== JSON.stringify(rcN)) up.classes = cc.length ? cc : null;
+  if ((S.cfgT || 0) > ((R.cfg && R.cfg.t) || 0)) up.cfg = { reasons: S.reasons, rewards: S.rewards, lock: S.lock, t: S.cfgT };
+  return up;
+}
+function cloudPushSoon() { if (!cloud.k) return; clearTimeout(cloud.timer); cloud.timer = setTimeout(cloudPush, 600); }
+async function cloudPush() {
+  if (!cloud.k || !cloud.R) return;
+  if (cloud.busy) return cloudPushSoon();
+  const up = JSON.parse(JSON.stringify(cloudDiff())); if (!Object.keys(up).length) return;
+  cloud.busy = true;
+  try {
+    const r = await fetch(`${CLOUD_URL}/v1/${cloud.k}.json`, { method: 'PATCH', body: JSON.stringify(up) });
+    if (!r.ok) throw 0;
+    Object.entries(up).forEach(([p, v]) => cloudSet(cloud.R, p, v));
+    cloud.t = Date.now(); cloudStatus('ok');
+  } catch (e) { cloudStatus('err'); clearTimeout(cloud.timer); cloud.timer = setTimeout(cloudPush, 15000); }
+  cloud.busy = false;
+}
+function cloudSet(obj, path, val) {
+  const ks = path.split('/').filter(Boolean); if (!ks.length) return;
+  let o = obj; ks.slice(0, -1).forEach(k => { if (typeof o[k] !== 'object' || o[k] === null) o[k] = {}; o = o[k]; });
+  if (val === null) delete o[ks[ks.length - 1]]; else o[ks[ks.length - 1]] = val;
+}
+function cloudGot() {
+  if (mergeCloud(cloud.R)) {
+    save(true); renderClasses();
+    if (!document.getElementById('p-settings').classList.contains('hidden')) renderSettings();
+    const m = document.querySelector('.modal[data-detail]'); if (m) openDetail(m.dataset.detail);
+  }
+  cloud.t = Date.now(); cloudStatus('ok'); cloudPushSoon();
+}
+async function cloudStart(pw) {
+  if (!pw || cloud.es || !window.EventSource || !crypto.subtle) return;
+  const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sao-lop-hoc|' + pw));
+  cloud.k = [...new Uint8Array(h)].map(b => b.toString(16).padStart(2, '0')).join('');
+  cloudStatus('wait');
+  /* EventSource: tải 1 lần toàn bộ, sau đó chỉ nhận phần thay đổi (máy khác cộng sao là hiện ngay) */
+  const es = cloud.es = new EventSource(`${CLOUD_URL}/v1/${cloud.k}.json`);
+  const on = (type, fn) => es.addEventListener(type, e => { try { fn(JSON.parse(e.data)); } catch (err) { console.warn('[sync]', err); } });
+  on('put', d => { if (d.path === '/') cloud.R = d.data || {}; else { cloud.R = cloud.R || {}; cloudSet(cloud.R, d.path, d.data); } cloudGot(); });
+  on('patch', d => { cloud.R = cloud.R || {}; Object.entries(d.data || {}).forEach(([k, v]) => cloudSet(cloud.R, d.path + '/' + k, v)); cloudGot(); });
+  es.addEventListener('keep-alive', () => { if (cloud.st !== 'ok') cloudStatus('ok'); });
+  es.onerror = () => cloudStatus('err');
+}
+function cloudStop() { if (cloud.es) cloud.es.close(); clearTimeout(cloud.timer); cloud = CLOUD0(); }
+function cloudText() {
+  return {
+    off: '☁️ Chưa bật đồng bộ (cần nhập mật khẩu lớp).', wait: '☁️ Đang kết nối đồng bộ…',
+    err: '⚠️ Mất mạng — sao vẫn lưu trên máy này, có mạng lại sẽ tự đồng bộ.',
+    ok: `☁️ Đã đồng bộ với mọi máy${cloud.t ? ' lúc ' + hhmm(cloud.t) : ''}.`,
+  }[cloud.st];
+}
+function cloudStatus(st) { cloud.st = st; const el = document.getElementById('cloudInfo'); if (el) el.textContent = cloudText(); }
 
 const curClass = () => S.classes.find(c => c.id === S.cur) || S.classes[0];
 const findStu = (c, sid) => c && c.students.find(s => s.id === sid);
@@ -459,7 +586,7 @@ function renderClasses() {
   }).join('');
 
   const d = dayKey();
-  const todays = S.log.filter(l => l.c === c.id && l.d === d).sort((a, b) => b.t - a.t);
+  const todays = S.log.filter(l => l.c === c.id && l.d === d && !l.mig).sort((a, b) => b.t - a.t);
   // gộp các dòng "cả lớp" cùng thời điểm thành 1 dòng
   const rows = []; const seen = new Set();
   todays.forEach(l => {
@@ -638,7 +765,8 @@ function renderSettings() {
     </div>
 
     <div class="box"><h3>💾 Dữ liệu</h3>
-      <p class="hint">Dữ liệu lưu trong trình duyệt của máy đang dùng. Máy trường hay bị xóa → cuối buổi bấm <b>Xuất file</b>, lưu vào USB / Google Drive; hôm sau mở web, bấm <b>Nhập file</b> là có lại.</p>
+      <p class="hint" id="cloudInfo">${cloudText()}</p>
+      <p class="hint">Sao tự đồng bộ giữa mọi máy (cần mạng). Muốn có bản dự phòng riêng thì bấm <b>Xuất file</b>.</p>
       <div class="row" style="flex-wrap:wrap">
         <button class="btn soft" data-act="export">⬇️ Xuất file</button>
         <button class="btn soft" data-act="import">⬆️ Nhập file</button>
@@ -654,7 +782,7 @@ document.addEventListener('change', e => {
   const c = curClass();
   if (f === 'cname') { const x = S.classes.find(k => k.id === t.dataset.cid); if (x && t.value.trim()) x.name = t.value.trim(); }
   if (f === 'sname') { const s = findStu(c, t.dataset.sid); if (s && t.value.trim()) s.name = t.value.trim(); }
-  if (f === 'sstars') { const s = findStu(c, t.dataset.sid); if (s) s.stars = parseInt(t.value) || 0; }
+  if (f === 'sstars') { const s = findStu(c, t.dataset.sid); const n = (parseInt(t.value) || 0) - (s ? s.stars : 0); if (s && n) { s.stars += n; S.log.push({ id: uid(), t: Date.now(), d: dayKey(), c: c.id, s: s.id, n, r: 'Sửa số sao', ic: '✏️', k: 'adj' }); } }
   if (f === 'reason') {
     const r = (t.dataset.sign === '1' ? S.reasons.plus : S.reasons.minus)[t.dataset.i];
     if (r) r[t.dataset.f] = t.dataset.f === 'n' ? Math.max(1, parseInt(t.value) || 1) : t.value;
@@ -678,8 +806,8 @@ function importFile(e) {
     try {
       const d = JSON.parse(rd.result);
       if (!d.classes || !d.reasons || !d.rewards) throw 0;
-      d.lock = d.lock || { mode: 'key', key: 'a' }; d.log = d.log || [];
-      S = d; save(); renderAll(); toast('⬆️ Đã nhập dữ liệu');
+      d.lock = d.lock || { mode: 'key', key: 'a' }; d.log = d.log || []; d.dead = d.dead || [];
+      S = d; migrateLog(); save(); renderAll(); toast('⬆️ Đã nhập dữ liệu');
     } catch (err) { toast('File không đúng định dạng'); }
   };
   rd.readAsText(f);
@@ -724,6 +852,7 @@ function runAct(el) {
     case 'delClass': {
       const x = S.classes.find(k => k.id === d.cid); if (!x) return;
       if (x.students.length && !confirmInline(el, `Xóa lớp "${x.name}"?`)) return;
+      markDead(x.web ? [] : [x.id], S.log.filter(l => l.c === d.cid));
       S.classes = S.classes.filter(k => k.id !== d.cid); S.log = S.log.filter(l => l.c !== d.cid);
       if (S.cur === d.cid) S.cur = S.classes[0] && S.classes[0].id; save(); renderSettings(); renderClasses(); return toast('Đã xóa lớp');
     }
@@ -742,6 +871,7 @@ function runAct(el) {
     case 'delStudent': {
       const s = findStu(c, d.sid); if (!s) return;
       if (!confirmInline(el, `Xóa ${s.name}?`)) return;
+      markDead(s.web ? [] : [s.id], S.log.filter(l => l.s === d.sid));
       c.students = c.students.filter(k => k.id !== d.sid); S.log = S.log.filter(l => l.s !== d.sid); save(); renderSettings(); renderClasses(); return;
     }
     case 'addReason': (d.sign === '1' ? S.reasons.plus : S.reasons.minus).push({ text: 'Lý do mới', n: 1, ic: d.sign === '1' ? '⭐' : '⚠️' }); save(); return renderSettings();
@@ -749,17 +879,17 @@ function runAct(el) {
     case 'addReward': S.rewards.push({ id: uid(), name: 'Quà mới', ic: '🎁', cost: 30 }); save(); return renderSettings();
     case 'delReward': S.rewards.splice(+d.i, 1); save(); return renderSettings();
     case 'dsReload': return syncDS(getPw(), true);
-    case 'dsForget': forgetPw(); closeModal(); return showGate();
+    case 'dsForget': forgetPw(); cloudStop(); closeModal(); return showGate();
     case 'export': return exportData();
     case 'import': return document.getElementById('impFile').click();
-    case 'wipe': if (!confirmInline(el, 'Xóa SẠCH mọi lớp, học sinh, sao?')) return; S = defaults(); S.classes = []; S.cur = null; save(); renderAll(); return toast('Đã xóa hết');
+    case 'wipe': if (!confirmInline(el, 'Xóa SẠCH mọi lớp, học sinh, sao?')) return; markDead(S.classes.filter(k => !k.web).map(k => k.id), S.log); { const dd = S.dead; S = defaults(); S.classes = []; S.cur = null; S.dead = dd; } save(); syncDS(getPw(), false); renderAll(); return toast('Đã xóa hết');
   }
 }
 function undoQuiet(lid) {
   const i = S.log.findIndex(l => l.id === lid); if (i < 0) return;
   const l = S.log[i]; const c = S.classes.find(x => x.id === l.c); const st = findStu(c, l.s);
   if (st) { st.stars -= l.n; if (l.k === 'pt' && l.n > 0) st.earned -= l.n; }
-  S.log.splice(i, 1);
+  S.log.splice(i, 1); S.dead.push(lid);
 }
 /* Bấm lần 1 đổi chữ thành "Chắc chưa?", bấm lần 2 trong 3 giây mới thực hiện (không dùng hộp thoại confirm) */
 function confirmInline(el, msg) {
@@ -1114,7 +1244,7 @@ async function syncDS(pw, manual) {
   try { ds = await decryptDS(enc, pw); }
   catch (e) { if (manual) toast('❌ Sai mật khẩu'); return 'pw'; }
   const changed = mergeDS(ds) || S.dsUpdated !== ds.updated;
-  S.dsUpdated = ds.updated; save();
+  S.dsUpdated = ds.updated; save(true); if (changed) cloudPushSoon();
   if (changed || manual) renderAll();
   if (manual) toast(`✔ Đã cập nhật ${ds.classes.length} lớp`);
   return 'ok';
@@ -1164,11 +1294,11 @@ document.getElementById('gateForm').addEventListener('submit', async e => {
   if (res === 'pw') { err.textContent = 'Sai mật khẩu'; document.getElementById('gatePw').select(); return; }
   if (res === 'net') { err.textContent = 'Không tải được — kiểm tra mạng rồi thử lại'; return; }
   try { (document.getElementById('gateRemember').checked ? localStorage : sessionStorage).setItem(PW_KEY, pw); } catch (e) {}
-  document.getElementById('gate').classList.add('hidden'); renderAll();
+  document.getElementById('gate').classList.add('hidden'); renderAll(); cloudStart(pw);
 });
-{ const pw = getPw(); if (pw) { document.getElementById('gate').classList.add('hidden'); syncDS(pw, false).then(r => { if (r === 'pw') { forgetPw(); showGate(); } }); } else showGate(); }
+{ const pw = getPw(); if (pw) { document.getElementById('gate').classList.add('hidden'); syncDS(pw, false).then(r => { if (r === 'pw') { forgetPw(); showGate(); } else cloudStart(pw); }); } else showGate(); }
 /* Tự cập nhật: máy trường hay giữ bản cũ. Mỗi lần đẩy bản mới thì tăng APP_VER và số trong version.txt cho khớp */
-const APP_VER = '3';
+const APP_VER = '4';
 function checkUpdate() {
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => {
     v = v.trim(); if (!v || v === APP_VER) return;
