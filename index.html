@@ -135,11 +135,6 @@ h4{margin:14px 0 6px;font-size:18px}
 .prize .ic{font-size:52px;line-height:1}
 .prize .nm{font-size:22px;font-weight:800}
 .prize .cost{font-size:26px;font-weight:800;color:var(--star)}
-.prize.mega{flex:3 1 420px;background:linear-gradient(135deg,#ffe066,#ff9f1c 55%,#e5484d);color:#fff;position:relative;overflow:hidden;padding:24px}
-.prize.mega .ic{font-size:110px}
-.prize.mega .nm{font-size:40px;text-shadow:0 3px 0 rgba(0,0,0,.18)}
-.prize.mega .cost{font-size:clamp(64px,9vw,130px);color:#fff;line-height:1;text-shadow:0 5px 0 rgba(0,0,0,.2)}
-.prize.mega .tag{background:#fff;color:var(--minus);padding:2px 14px;border-radius:999px;font-weight:800;letter-spacing:.06em}
 .rank{background:var(--panel);border-radius:16px;padding:10px 16px;box-shadow:var(--shadow)}
 .rank-row{display:grid;grid-template-columns:36px 1fr 80px 2fr;gap:12px;align-items:center;padding:6px 0;border-top:1px dashed var(--line)}
 .rank-row:first-child{border-top:0}
@@ -268,7 +263,7 @@ function defaults() {
     rewards: [
       { id: uid(), name: 'Sticker', ic: '🌟', cost: 15 },
       { id: uid(), name: 'Squishy', ic: '🍡', cost: 60 },
-      { id: uid(), name: 'LEGO', ic: '🧱', cost: 999 },
+      { id: uid(), name: 'LEGO', ic: '🧱', cost: 200 },
     ],
     lock: { mode: 'key', key: 'a' },
     cur: cid,
@@ -281,11 +276,12 @@ function load() {
   return null;
 }
 let S = load() || defaults();
+// bản cũ để LEGO 999⭐ → đổi về 200⭐
+S.rewards.forEach(r => { if (r.name === 'LEGO' && r.cost === 999) r.cost = 200; });
 function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { toast('⚠️ Không lưu được vào trình duyệt — hãy Xuất file dự phòng'); } }
 
 const curClass = () => S.classes.find(c => c.id === S.cur) || S.classes[0];
 const findStu = (c, sid) => c && c.students.find(s => s.id === sid);
-const megaReward = () => S.rewards.reduce((a, b) => (!a || b.cost > a.cost ? b : a), null);
 
 /* ================== Toast ================== */
 let toastT;
@@ -512,11 +508,9 @@ function openDetail(sid) {
 /* ================== Trang Đổi quà ================== */
 function renderRewards() {
   const el = document.getElementById('p-rewards');
-  const c = curClass(); const mega = megaReward();
+  const c = curClass();
   const sorted = [...S.rewards].sort((a, b) => a.cost - b.cost);
-  const shelf = sorted.map(r => r === mega && S.rewards.length > 1
-    ? `<div class="prize mega"><span class="tag">SIÊU HIẾM</span><div class="ic">${r.ic}</div><div class="nm">${esc(r.name)}</div><div class="cost">${r.cost}⭐</div><div>Cố lên, ai sẽ là người đầu tiên?</div></div>`
-    : `<div class="prize"><div class="ic">${r.ic}</div><div class="nm">${esc(r.name)}</div><div class="cost">${r.cost}⭐</div></div>`).join('');
+  const shelf = sorted.map(r => `<div class="prize"><div class="ic">${r.ic}</div><div class="nm">${esc(r.name)}</div><div class="cost">${r.cost}⭐</div></div>`).join('');
   let rank = '<div class="empty">Chưa có lớp.</div>';
   if (c && c.students.length) {
     const top = [...c.students].sort((a, b) => b.stars - a.stars);
@@ -576,7 +570,7 @@ function renderSettings() {
         <input type="number" class="w-n" min="1" value="${r.cost}" data-edit="reward" data-i="${i}" data-f="cost">⭐
         <button class="del" data-act="delReward" data-i="${i}">✕</button></div>`).join('')}
       <button class="btn soft" data-act="addReward">+ Thêm quà</button>
-      <p class="hint">Quà có số sao cao nhất sẽ được trưng thật to ở trang Đổi quà.</p></div>
+</div>
 
     <div class="box"><h3>🔒 Khóa chống học sinh tự bấm</h3>
       <div class="row"><select class="f" data-edit="lockmode">
