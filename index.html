@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sao Lớp Học</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fff8ec; --panel:#ffffff; --ink:#2b2340; --muted:#7a7090; --line:#eadfcf;
+  --brand:#6c4cf1; --brand-soft:#ece7ff; --plus:#1fa95b; --plus-soft:#dff6e8;
+  --minus:#e5484d; --minus-soft:#fde4e4; --star:#f5a700; --gold-soft:#fff1c7;
+  --hold:#ff9f1c; --press:#2f80ed; --shadow:0 3px 0 rgba(43,35,64,.12),0 8px 20px rgba(43,35,64,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Baloo 2",system-ui,"Segoe UI",sans-serif;font-size:17px;line-height:1.3}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+
+/* ===== Header ===== */
+header{display:flex;align-items:center;gap:14px;padding:10px 18px;background:var(--panel);border-bottom:2px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.logo{font-weight:800;font-size:24px;display:flex;align-items:center;gap:6px}
+.logo span{color:var(--star)}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{padding:6px 14px;border-radius:12px;font-weight:700;color:var(--muted)}
+nav button.on{background:var(--brand);color:#fff}
+nav button:not(.on):hover{background:var(--brand-soft);color:var(--brand)}
+.lockbadge{margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:#f1edf7;color:var(--muted);font-weight:700;font-size:15px;transition:.15s}
+.lockbadge.open{background:var(--plus);color:#fff;box-shadow:0 0 0 4px var(--plus-soft)}
+.lockbadge kbd{background:#fff;color:var(--ink);border-radius:6px;padding:0 7px;border:1px solid var(--line);font-family:inherit}
+
+main{padding:16px 18px 40px;max-width:1500px;margin:0 auto}
+
+/* ===== Classes page ===== */
+.layout{display:grid;grid-template-columns:220px 1fr;gap:16px}
+@media (max-width:820px){.layout{grid-template-columns:1fr}}
+.side{background:var(--panel);border-radius:16px;padding:10px;box-shadow:var(--shadow);align-self:start}
+.side h3{margin:4px 8px 8px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.side button.cls{display:flex;justify-content:space-between;width:100%;text-align:left;padding:8px 12px;border-radius:10px;font-weight:700}
+.side button.cls small{color:var(--muted);font-weight:600}
+.side button.cls.on{background:var(--brand-soft);color:var(--brand)}
+.side button.cls:not(.on):hover{background:#f6f2fb}
+.side .add{margin-top:6px;width:100%;padding:8px;border:2px dashed var(--line);border-radius:10px;color:var(--muted);font-weight:700}
+
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.toolbar h2{margin:0;font-size:30px;font-weight:800}
+.toolbar .sum{color:var(--muted);font-weight:600}
+.toolbar .grow{flex:1}
+.btn{padding:8px 16px;border-radius:12px;font-weight:800;box-shadow:var(--shadow);background:var(--panel);display:inline-flex;align-items:center;gap:6px;position:relative;overflow:hidden;user-select:none}
+.btn.plus{background:var(--plus);color:#fff}
+.btn.minus{background:var(--minus);color:#fff}
+.btn.soft{background:var(--brand-soft);color:var(--brand);box-shadow:none}
+.btn:active{transform:translateY(2px)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.card{background:var(--panel);border-radius:16px;padding:12px 12px 10px;box-shadow:var(--shadow);border:3px solid transparent;display:flex;flex-direction:column;gap:6px;transition:border-color .2s}
+.card.pos{border-color:#9be3b8}
+.card.neg{border-color:#f5b0b2}
+.card.flash-p{animation:flp .6s}
+.card.flash-m{animation:flm .6s}
+@keyframes flp{30%{background:var(--plus-soft);transform:scale(1.04)}}
+@keyframes flm{30%{background:var(--minus-soft);transform:scale(.97)}}
+.card .name{font-size:20px;font-weight:800;text-align:left;line-height:1.15;padding:0}
+.card .name:hover{color:var(--brand);text-decoration:underline}
+.card .stars{font-size:30px;font-weight:800;color:var(--star);line-height:1}
+.card .stars.negv{color:var(--minus)}
+.card .today{min-height:24px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:14px;color:var(--muted)}
+.chip{display:inline-block;padding:0 8px;border-radius:999px;font-weight:800;font-size:14px}
+.chip.p{background:var(--plus-soft);color:var(--plus)}
+.chip.m{background:var(--minus-soft);color:var(--minus)}
+.chip.g{background:var(--gold-soft);color:#a86b00}
+.card .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card .btns button{font-size:26px;font-weight:800;border-radius:12px;padding:2px 0;position:relative;overflow:hidden;user-select:none}
+.card .btns .m{background:var(--minus-soft);color:var(--minus)}
+.card .btns .p{background:var(--plus-soft);color:var(--plus)}
+.card .next{font-size:13px;color:var(--muted)}
+.bar{height:6px;border-radius:9px;background:#f0eadf;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ffcf3f,var(--star));border-radius:9px}
+
+/* hold-to-confirm fill */
+[data-guard].charging::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.45);transform-origin:left;animation:charge var(--hold-ms,900ms) linear forwards;pointer-events:none}
+@keyframes charge{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+.logbox{margin-top:18px;background:var(--panel);border-radius:16px;padding:12px 16px;box-shadow:var(--shadow)}
+.logbox h3{margin:0 0 8px;font-size:20px}
+.logrow{display:flex;align-items:center;gap:10px;padding:5px 0;border-top:1px dashed var(--line);font-size:16px}
+.logrow:first-of-type{border-top:0}
+.logrow time{color:var(--muted);font-variant-numeric:tabular-nums;width:46px}
+.logrow b{min-width:110px}
+.logrow .r{flex:1;color:var(--muted)}
+.logrow .undo{color:var(--muted);padding:2px 8px;border-radius:8px;position:relative;overflow:hidden}
+.logrow .undo:hover{background:#f3eef9;color:var(--ink)}
+.empty{color:var(--muted);padding:20px;text-align:center}
+
+/* ===== Modal ===== */
+.modal-bg{position:fixed;inset:0;background:rgba(30,20,50,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal{background:var(--panel);border-radius:20px;padding:18px 20px;width:min(720px,100%);max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.modal h2{margin:0 0 12px;font-size:26px;display:flex;align-items:center;gap:8px}
+.modal h2 .x{margin-left:auto;font-size:26px;color:var(--muted);width:36px;height:36px;border-radius:10px}
+.modal h2 .x:hover{background:#f3eef9}
+.reasons{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.reasons button{padding:12px;border-radius:14px;text-align:left;font-weight:700;font-size:18px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.reasons.p button{background:var(--plus-soft)}
+.reasons.p button:hover{background:#c5efd6}
+.reasons.m button{background:var(--minus-soft)}
+.reasons.m button:hover{background:#fbcfd0}
+.reasons button .n{font-size:22px;font-weight:800}
+.reasons.p .n{color:var(--plus)} .reasons.m .n{color:var(--minus)}
+.custom{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.custom input{padding:8px 12px;border-radius:10px;border:2px solid var(--line);background:#fff}
+.custom input[type=number]{width:90px}
+.custom input[type=text]{flex:1;min-width:160px}
+
+.det-top{display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.det-top .big{font-size:48px;font-weight:800;color:var(--star);line-height:1}
+.det-top .meta{color:var(--muted)}
+.gifts{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin:8px 0 14px}
+.gift{border:2px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.gift .ic{font-size:30px}
+.gift button{border-radius:10px;padding:6px;font-weight:800;background:var(--brand);color:#fff;position:relative;overflow:hidden}
+.gift button:disabled{background:#e8e2f0;color:var(--muted);cursor:not-allowed}
+h4{margin:14px 0 6px;font-size:18px}
+
+/* ===== Rewards page ===== */
+.rw-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.rw-head h2{margin:0;font-size:30px}
+.rw-head select{padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:#fff;font-weight:700}
+.shelf{display:flex;gap:14px;flex-wrap:wrap;align-items:stretch;margin-bottom:20px}
+.prize{background:var(--panel);border-radius:20px;padding:16px;box-shadow:var(--shadow);flex:1 1 180px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px}
+.prize .ic{font-size:52px;line-height:1}
+.prize .nm{font-size:22px;font-weight:800}
+.prize .cost{font-size:26px;font-weight:800;color:var(--star)}
+.prize.mega{flex:3 1 420px;background:linear-gradient(135deg,#ffe066,#ff9f1c 55%,#e5484d);color:#fff;position:relative;overflow:hidden;padding:24px}
+.prize.mega .ic{font-size:110px}
+.prize.mega .nm{font-size:40px;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.prize.mega .cost{font-size:clamp(64px,9vw,130px);color:#fff;line-height:1;text-shadow:0 5px 0 rgba(0,0,0,.2)}
+.prize.mega .tag{background:#fff;color:var(--minus);padding:2px 14px;border-radius:999px;font-weight:800;letter-spacing:.06em}
+.rank{background:var(--panel);border-radius:16px;padding:10px 16px;box-shadow:var(--shadow)}
+.rank-row{display:grid;grid-template-columns:36px 1fr 80px 2fr;gap:12px;align-items:center;padding:6px 0;border-top:1px dashed var(--line)}
+.rank-row:first-child{border-top:0}
+.rank-row .no{font-weight:800;color:var(--muted);text-align:center}
+.rank-row .st{font-weight:800;color:var(--star);text-align:right}
+.rank-row .bar{height:12px}
+.rank-row small{color:var(--muted)}
+
+/* ===== Settings ===== */
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.box{background:var(--panel);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+.box h3{margin:0 0 10px;font-size:20px}
+.row{display:flex;gap:8px;align-items:center;margin:5px 0}
+.row input[type=text],.row input[type=number],.row select{padding:5px 10px;border-radius:9px;border:2px solid var(--line);background:#fff;min-width:0}
+.row input.w-n{width:76px}
+.row input.w-ic{width:56px;text-align:center}
+.row .f{flex:1}
+.del{color:var(--minus);font-weight:800;padding:2px 9px;border-radius:8px;position:relative;overflow:hidden}
+.del:hover{background:var(--minus-soft)}
+textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--line);padding:8px 10px;background:#fff}
+.hint{color:var(--muted);font-size:14px}
+.sub{color:var(--muted);font-weight:700;font-size:14px;margin-top:10px}
+
+/* ===== Keyboard ===== */
+.kb-wrap{background:var(--panel);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.kb-top{display:flex;gap:14px;align-items:stretch;flex-wrap:wrap;margin-bottom:12px}
+.screen{flex:1;min-width:260px;background:#1e1b2e;color:#e9f5ff;border-radius:14px;padding:10px 14px;font-family:Consolas,monospace;font-size:22px;min-height:84px;white-space:pre-wrap;word-break:break-all;position:relative}
+.screen .cur{display:inline-block;width:2px;height:1.05em;background:#7cf;vertical-align:-3px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.screen .clr{position:absolute;right:8px;top:6px;color:#9aa;font-family:"Baloo 2";font-size:14px}
+.caption{flex:1;min-width:260px;border-radius:14px;background:var(--gold-soft);padding:10px 16px;display:flex;flex-direction:column;justify-content:center}
+.caption .combo{font-size:34px;font-weight:800;line-height:1.1}
+.caption .combo kbd{display:inline-block;background:#fff;border:2px solid #e2c56f;border-bottom-width:4px;border-radius:9px;padding:0 10px;font-family:inherit;margin:0 2px}
+.caption .desc{font-size:20px;font-weight:700;color:#8a5a00}
+.board{container-type:inline-size;position:relative;width:100%;aspect-ratio:22.5/6.5;background:#2d2a3e;border-radius:16px;padding:0}
+.board-in{position:absolute;inset:1.2%}
+.key{position:absolute;display:flex;flex-direction:column;justify-content:center;align-items:center;background:#f7f5fb;border-radius:.55cqw;box-shadow:0 .35cqw 0 #b9b3c8;color:#2b2340;font-weight:700;font-size:1.25cqw;line-height:1.05;user-select:none;cursor:pointer;transition:background .08s,transform .08s,box-shadow .08s;text-align:center;padding:0 .2cqw}
+.key .s{font-size:.95cqw;color:#8a83a0}
+.key .t{font-size:.85cqw;color:#8a83a0}
+.key.wide{font-size:1.05cqw}
+.key.letter{font-size:1.6cqw}
+.key:hover{background:#fff}
+.key.down{background:var(--press);color:#fff;transform:translateY(.3cqw);box-shadow:0 .05cqw 0 #1b5bb3}
+.key.down .s,.key.down .t{color:#dbe8ff}
+.key.held{background:var(--hold);color:#fff;transform:translateY(.3cqw);box-shadow:0 .05cqw 0 #c07000;animation:pulse 1s infinite}
+.key.held .s,.key.held .t{color:#fff3df}
+@keyframes pulse{50%{filter:brightness(1.12)}}
+.key .num-on{color:var(--plus)} .key .num-off{color:#b6b0c4}
+.leds{position:absolute;display:flex;justify-content:space-around;align-items:center;background:#1e1b2e;border-radius:.6cqw;color:#cfc8e6;font-size:.95cqw}
+.led{display:flex;flex-direction:column;align-items:center;gap:.25cqw}
+.led i{width:1.3cqw;height:1.3cqw;border-radius:50%;background:#3e3a52;box-shadow:inset 0 0 .3cqw #000;transition:.15s}
+.led.on i{background:#4dff88;box-shadow:0 0 .8cqw #4dff88,0 0 2cqw #4dff8899}
+.sc-list{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+.sc-group h4{margin:0 0 6px;font-size:16px;color:var(--muted)}
+.sc-group div{display:flex;flex-wrap:wrap;gap:8px}
+.sc{padding:6px 12px;border-radius:12px;background:var(--brand-soft);font-weight:700;text-align:left;line-height:1.15}
+.sc b{color:var(--brand)}
+.sc small{display:block;color:var(--muted);font-weight:600}
+.sc:hover{background:#dcd3ff}
+.sc.on{background:var(--hold);color:#fff}
+.sc.on b,.sc.on small{color:#fff}
+.kb-note{color:var(--muted);font-size:14px;margin-top:8px}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:14px;font-weight:700;transition:transform .25s;z-index:99;max-width:90vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⭐ <div>Sao <span>Lớp Học</span></div></div>
+  <nav id="tabs">
+    <button data-act="tab" data-tab="classes" class="on">🏫 Lớp học</button>
+    <button data-act="tab" data-tab="rewards">🎁 Đổi quà</button>
+    <button data-act="tab" data-tab="keyboard">⌨️ Bàn phím</button>
+    <button data-act="tab" data-tab="settings" data-guard>⚙️ Cài đặt</button>
+  </nav>
+  <div class="lockbadge" id="lockbadge"></div>
+</header>
+
+<main>
+  <section id="p-classes"></section>
+  <section id="p-rewards" class="hidden"></section>
+  <section id="p-keyboard" class="hidden"></section>
+  <section id="p-settings" class="hidden"></section>
+</main>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script>
+/* ================== Dữ liệu ================== */
+const STORE = 'saoLopHoc_v1';
+const uid = () => Math.random().toString(36).slice(2, 10);
+const pad = n => String(n).padStart(2, '0');
+const dayKey = (t = new Date()) => `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`;
+const hhmm = t => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtN = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
+
+function defaults() {
+  const names = ['Nguyễn Văn An','Trần Bảo Bình','Lê Minh Chi','Phạm Tiến Dũng','Hoàng Gia Hân','Võ Minh Khang','Đặng Khánh Linh','Bùi Đức Minh','Ngô Bảo Ngọc','Đỗ Hoàng Phúc'];
+  const cid = uid();
+  return {
+    classes: [{ id: cid, name: 'Lớp mẫu', students: names.map(n => ({ id: uid(), name: n, stars: 0, earned: 0 })) }],
+    log: [],
+    reasons: {
+      plus: [
+        { text: 'Phát biểu xây dựng bài', n: 1, ic: '🙋' },
+        { text: 'Làm bài đúng & nhanh', n: 1, ic: '⚡' },
+        { text: 'Hoàn thành bài thực hành', n: 2, ic: '✅' },
+        { text: 'Gõ phím đúng ngón', n: 1, ic: '⌨️' },
+        { text: 'Giúp đỡ bạn', n: 1, ic: '🤝' },
+        { text: 'Giữ trật tự, ngồi ngoan', n: 1, ic: '🤫' },
+        { text: 'Đạt điểm 10', n: 3, ic: '💯' },
+        { text: 'Tắt máy, xếp ghế gọn gàng', n: 1, ic: '🪑' },
+      ],
+      minus: [
+        { text: 'Nói chuyện riêng', n: 1, ic: '🗣️' },
+        { text: 'Chơi game trong giờ', n: 2, ic: '🎮' },
+        { text: 'Tự ý tắt/mở máy, nghịch máy', n: 1, ic: '🖥️' },
+        { text: 'Không làm bài', n: 1, ic: '📭' },
+        { text: 'Trêu chọc, đánh bạn', n: 2, ic: '😠' },
+        { text: 'Đi học muộn', n: 1, ic: '⏰' },
+      ],
+    },
+    rewards: [
+      { id: uid(), name: 'Sticker', ic: '🌟', cost: 15 },
+      { id: uid(), name: 'Squishy', ic: '🍡', cost: 60 },
+      { id: uid(), name: 'LEGO', ic: '🧱', cost: 999 },
+    ],
+    lock: { mode: 'key', key: 'a' },
+    cur: cid,
+    sort: 'name',
+  };
+}
+
+function load() {
+  try { const raw = localStorage.getItem(STORE); if (raw) return JSON.parse(raw); } catch (e) {}
+  return null;
+}
+let S = load() || defaults();
+function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { toast('⚠️ Không lưu được vào trình duyệt — hãy Xuất file dự phòng'); } }
+
+const curClass = () => S.classes.find(c => c.id === S.cur) || S.classes[0];
+const findStu = (c, sid) => c && c.students.find(s => s.id === sid);
+const megaReward = () => S.rewards.reduce((a, b) => (!a || b.cost > a.cost ? b : a), null);
+
+/* ================== Toast ================== */
+let toastT;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+/* ================== Khóa (giữ phím / nhấn giữ) ================== */
+let keyHeld = false;
+const HOLD_MS = 900;
+function lockLabel() { return (S.lock.key || 'a').toUpperCase(); }
+function renderLock() {
+  const b = document.getElementById('lockbadge');
+  if (S.lock.mode === 'key') {
+    b.className = 'lockbadge' + (keyHeld ? ' open' : '');
+    b.innerHTML = keyHeld ? `🔓 Đã mở khóa` : `🔒 Đang khóa`;
+  } else {
+    b.className = 'lockbadge';
+    b.innerHTML = `🔒 Nhấn giữ nút ~1 giây để chấm sao`;
+  }
+}
+window.addEventListener('keydown', e => {
+  if (S.lock.mode === 'key' && e.key && e.key.toLowerCase() === S.lock.key && !keyHeld) { keyHeld = true; renderLock(); }
+});
+window.addEventListener('keyup', e => {
+  if (S.lock.mode === 'key' && e.key && e.key.toLowerCase() === S.lock.key) { keyHeld = false; renderLock(); }
+});
+window.addEventListener('blur', () => { keyHeld = false; renderLock(); });
+
+function denied(el) {
+  if (S.lock.mode === 'key') toast('🔒 Đang khóa — chỉ thầy/cô mới bấm được');
+  else toast('🔒 Nhấn GIỮ nút khoảng 1 giây');
+  if (el) { el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
+}
+
+/* Nhấn giữ: pointerdown → đợi HOLD_MS → chạy */
+let holdTimer = null, holdEl = null;
+document.addEventListener('pointerdown', e => {
+  if (S.lock.mode !== 'hold') return;
+  const el = e.target.closest('[data-guard]');
+  if (!el) return;
+  holdEl = el; el.style.setProperty('--hold-ms', HOLD_MS + 'ms'); el.classList.add('charging');
+  holdTimer = setTimeout(() => {
+    el.classList.remove('charging'); el.dataset.fired = '1';
+    runAct(el);
+  }, HOLD_MS);
+});
+function cancelHold() { clearTimeout(holdTimer); if (holdEl) holdEl.classList.remove('charging'); holdEl = null; }
+['pointerup', 'pointerleave', 'pointercancel'].forEach(t => document.addEventListener(t, e => {
+  if (t === 'pointerleave' && e.target !== holdEl) return;
+  cancelHold();
+}, true));
+
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) {
+    if (e.target.classList.contains('modal-bg')) closeModal();
+    return;
+  }
+  if (el.hasAttribute('data-guard')) {
+    if (S.lock.mode === 'hold') {
+      if (el.dataset.fired) { delete el.dataset.fired; return; }
+      return denied(el);
+    }
+    if (!keyHeld) return denied(el);
+  }
+  runAct(el);
+});
+document.addEventListener('contextmenu', e => { if (e.target.closest('[data-guard]')) e.preventDefault(); });
+
+/* ================== Chấm sao ================== */
+function apply(sids, delta, reason, ic, all) {
+  const c = curClass(); const t = Date.now(); const d = dayKey();
+  sids.forEach(sid => {
+    const st = findStu(c, sid); if (!st) return;
+    st.stars += delta; if (delta > 0) st.earned += delta;
+    S.log.push({ id: uid(), t, d, c: c.id, s: sid, n: delta, r: reason, ic: ic || '', k: 'pt', all: !!all });
+  });
+  save(); closeModal(); renderClasses();
+  sids.forEach(sid => {
+    const card = document.querySelector(`.card[data-sid="${sid}"]`);
+    if (card) card.classList.add(delta > 0 ? 'flash-p' : 'flash-m');
+  });
+  const who = all ? 'cả lớp' : (findStu(c, sids[0]) || {}).name;
+  toast(`${delta > 0 ? '⭐' : '💔'} ${fmtN(delta)} sao cho ${who} — ${reason}`);
+}
+
+function redeem(sid, rid) {
+  const c = curClass(); const st = findStu(c, sid); const rw = S.rewards.find(r => r.id === rid);
+  if (!st || !rw) return;
+  if (st.stars < rw.cost) return toast(`Chưa đủ sao: cần ${rw.cost}⭐, đang có ${st.stars}⭐`);
+  st.stars -= rw.cost;
+  S.log.push({ id: uid(), t: Date.now(), d: dayKey(), c: c.id, s: sid, n: -rw.cost, r: `Đổi quà: ${rw.name}`, ic: rw.ic, k: 'gift' });
+  save(); renderClasses(); openDetail(sid);
+  toast(`🎉 ${st.name} đã đổi ${rw.ic} ${rw.name}!`);
+}
+
+/* ================== Trang Lớp học ================== */
+function nextReward(stars) {
+  const sorted = [...S.rewards].sort((a, b) => a.cost - b.cost);
+  return sorted.find(r => r.cost > stars) || null;
+}
+function todayOf(c, sid) { const d = dayKey(); return S.log.filter(l => l.c === c.id && l.s === sid && l.d === d); }
+
+function renderClasses() {
+  const el = document.getElementById('p-classes');
+  const c = curClass();
+  const side = `<aside class="side"><h3>Lớp của tôi</h3>
+    ${S.classes.map(x => `<button class="cls ${x.id === (c && c.id) ? 'on' : ''}" data-act="cls" data-cid="${x.id}">${esc(x.name)} <small>${x.students.length}</small></button>`).join('')}
+    <button class="add" data-act="tab" data-tab="settings" data-guard>+ Thêm / sửa lớp</button></aside>`;
+  if (!c) { el.innerHTML = `<div class="layout">${side}<div class="empty">Chưa có lớp nào. Vào ⚙️ Cài đặt để thêm lớp.</div></div>`; return; }
+
+  let studs = [...c.students];
+  if (S.sort === 'stars') studs.sort((a, b) => b.stars - a.stars);
+  else studs.sort((a, b) => lastName(a.name).localeCompare(lastName(b.name), 'vi') || a.name.localeCompare(b.name, 'vi'));
+
+  const cards = studs.map(st => {
+    const tl = todayOf(c, st.id);
+    const net = tl.filter(l => l.k === 'pt').reduce((s, l) => s + l.n, 0);
+    const chips = tl.map(l => `<span class="chip ${l.k === 'gift' ? 'g' : l.n > 0 ? 'p' : 'm'}" title="${esc(hhmm(l.t) + ' · ' + l.r)}">${l.k === 'gift' ? l.ic : fmtN(l.n)}</span>`).join('');
+    const nr = nextReward(st.stars);
+    const prev = [...S.rewards].sort((a, b) => b.cost - a.cost).find(r => r.cost <= st.stars);
+    const pct = nr ? Math.max(0, Math.min(100, st.stars / nr.cost * 100)) : 100;
+    const nextTxt = nr ? `Còn ${nr.cost - st.stars}⭐ → ${nr.ic} ${esc(nr.name)}` : '🏆 Đủ sao đổi mọi quà!';
+    return `<div class="card ${net > 0 ? 'pos' : net < 0 ? 'neg' : ''}" data-sid="${st.id}">
+      <button class="name" data-act="student" data-sid="${st.id}">${esc(st.name)}</button>
+      <div class="stars ${st.stars < 0 ? 'negv' : ''}">⭐ ${st.stars}</div>
+      <div class="today">${chips || 'Hôm nay: chưa có'}</div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <div class="next">${prev ? `<b style="color:var(--plus)">Đổi được ${prev.ic} ${esc(prev.name)}!</b><br>` : ''}${nextTxt}</div>
+      <div class="btns">
+        <button class="m" data-act="minus" data-sid="${st.id}" data-guard title="Trừ sao">−</button>
+        <button class="p" data-act="plus" data-sid="${st.id}" data-guard title="Cộng sao">+</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  const d = dayKey();
+  const todays = S.log.filter(l => l.c === c.id && l.d === d).sort((a, b) => b.t - a.t);
+  // gộp các dòng "cả lớp" cùng thời điểm thành 1 dòng
+  const rows = []; const seen = new Set();
+  todays.forEach(l => {
+    if (l.all) {
+      const key = l.t + '|' + l.r + '|' + l.n; if (seen.has(key)) return; seen.add(key);
+      rows.push({ ...l, name: 'Cả lớp', ids: todays.filter(x => x.all && x.t === l.t && x.r === l.r && x.n === l.n).map(x => x.id) });
+    } else rows.push({ ...l, name: (findStu(c, l.s) || { name: '(đã xóa)' }).name, ids: [l.id] });
+  });
+  const totP = todays.filter(l => l.k === 'pt' && l.n > 0).reduce((s, l) => s + l.n, 0);
+  const totM = todays.filter(l => l.k === 'pt' && l.n < 0).reduce((s, l) => s + l.n, 0);
+  const logHtml = rows.length ? rows.map(l => `<div class="logrow">
+      <time>${hhmm(l.t)}</time><b>${esc(l.name)}</b>
+      <span class="chip ${l.k === 'gift' ? 'g' : l.n > 0 ? 'p' : 'm'}">${fmtN(l.n)}⭐</span>
+      <span class="r">${l.ic ? l.ic + ' ' : ''}${esc(l.r)}</span>
+      <button class="undo" data-act="undo" data-lids="${l.ids.join(',')}" data-guard title="Hoàn tác">↶ Hoàn tác</button>
+    </div>`).join('') : `<div class="empty">Hôm nay lớp này chưa được cộng / trừ sao.</div>`;
+
+  el.innerHTML = `<div class="layout">${side}<div>
+    <div class="toolbar">
+      <h2>${esc(c.name)}</h2><span class="sum">${c.students.length} học sinh · tổng ${c.students.reduce((s, x) => s + x.stars, 0)}⭐</span>
+      <span class="grow"></span>
+      <button class="btn soft" data-act="sort">${S.sort === 'stars' ? '🔤 Xếp theo tên' : '🏆 Xếp theo sao'}</button>
+      <button class="btn minus" data-act="allMinus" data-guard>− Trừ cả lớp</button>
+      <button class="btn plus" data-act="allPlus" data-guard>+ Cộng cả lớp</button>
+    </div>
+    ${c.students.length ? `<div class="grid">${cards}</div>` : `<div class="empty">Lớp chưa có học sinh. Vào ⚙️ Cài đặt → dán danh sách tên.</div>`}
+    <div class="logbox"><h3>📋 Hôm nay ${d.slice(8)}/${d.slice(5, 7)} &nbsp;<span class="chip p">${fmtN(totP) || '0'}⭐</span> <span class="chip m">${totM ? fmtN(totM) : '0'}⭐</span></h3>${logHtml}</div>
+  </div></div>`;
+}
+function lastName(n) { const p = n.trim().split(/\s+/); return p[p.length - 1] || n; }
+
+/* ================== Modal ================== */
+function openModal(html, attr = '') {
+  document.getElementById('modal').innerHTML = `<div class="modal-bg"><div class="modal" ${attr}>${html}</div></div>`;
+}
+function closeModal() { document.getElementById('modal').innerHTML = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.getElementById('modal').innerHTML) closeModal(); });
+
+let pending = null; // {sids, sign, all}
+function openReason(target, sign) {
+  const c = curClass();
+  const all = target === 'all';
+  const sids = all ? c.students.map(s => s.id) : [target];
+  if (!sids.length) return toast('Lớp chưa có học sinh');
+  pending = { sids, sign, all };
+  const who = all ? `cả lớp ${esc(c.name)}` : esc(findStu(c, target).name);
+  const list = sign > 0 ? S.reasons.plus : S.reasons.minus;
+  openModal(`<h2>${sign > 0 ? '⭐ Cộng sao cho' : '💔 Trừ sao'} ${who}<button class="x" data-act="close">×</button></h2>
+    <div class="reasons ${sign > 0 ? 'p' : 'm'}">
+      ${list.map((r, i) => `<button data-act="reason" data-i="${i}"><span>${r.ic || ''} ${esc(r.text)}</span><span class="n">${sign > 0 ? '+' : '−'}${r.n}</span></button>`).join('')}
+    </div>
+    <div class="custom">
+      <input type="number" id="cN" min="1" value="1" aria-label="Số sao">
+      <input type="text" id="cR" placeholder="Lý do khác…" aria-label="Lý do">
+      <button class="btn ${sign > 0 ? 'plus' : 'minus'}" data-act="custom">${sign > 0 ? '+ Cộng' : '− Trừ'}</button>
+    </div>`);
+}
+
+function openDetail(sid) {
+  const c = curClass(); const st = findStu(c, sid); if (!st) return;
+  const hist = S.log.filter(l => l.c === c.id && l.s === sid).sort((a, b) => b.t - a.t);
+  const d = dayKey();
+  const row = l => `<div class="logrow"><time>${l.d === d ? hhmm(l.t) : l.d.slice(8) + '/' + l.d.slice(5, 7)}</time>
+    <span class="chip ${l.k === 'gift' ? 'g' : l.n > 0 ? 'p' : 'm'}">${fmtN(l.n)}⭐</span>
+    <span class="r">${l.ic ? l.ic + ' ' : ''}${esc(l.r)}</span>
+    <button class="undo" data-act="undo" data-lids="${l.id}" data-guard>↶</button></div>`;
+  const today = hist.filter(l => l.d === d), older = hist.filter(l => l.d !== d).slice(0, 60);
+  openModal(`<h2>${esc(st.name)}<button class="x" data-act="close">×</button></h2>
+    <div class="det-top"><div class="big">⭐ ${st.stars}</div>
+      <div class="meta">Tổng sao đã kiếm: <b>${st.earned}</b><br>Đã đổi quà: <b>${hist.filter(l => l.k === 'gift').length}</b> lần</div>
+      <span style="flex:1"></span>
+      <button class="btn minus" data-act="minus" data-sid="${sid}" data-guard>− Trừ</button>
+      <button class="btn plus" data-act="plus" data-sid="${sid}" data-guard>+ Cộng</button>
+    </div>
+    <h4>🎁 Đổi quà</h4>
+    <div class="gifts">${[...S.rewards].sort((a, b) => a.cost - b.cost).map(r => `<div class="gift">
+      <div class="ic">${r.ic}</div><b>${esc(r.name)}</b><span>${r.cost}⭐ ${st.stars >= r.cost ? '' : `<small style="color:var(--muted)">(thiếu ${r.cost - st.stars})</small>`}</span>
+      <button data-act="redeem" data-sid="${sid}" data-rid="${r.id}" data-guard ${st.stars >= r.cost ? '' : 'disabled'}>Đổi</button></div>`).join('')}</div>
+    <h4>📅 Hôm nay</h4>${today.length ? today.map(row).join('') : '<div class="hint">Chưa có.</div>'}
+    <h4>🗂️ Trước đó</h4>${older.length ? older.map(row).join('') : '<div class="hint">Chưa có.</div>'}`, `data-detail="${sid}"`);
+}
+
+/* ================== Trang Đổi quà ================== */
+function renderRewards() {
+  const el = document.getElementById('p-rewards');
+  const c = curClass(); const mega = megaReward();
+  const sorted = [...S.rewards].sort((a, b) => a.cost - b.cost);
+  const shelf = sorted.map(r => r === mega && S.rewards.length > 1
+    ? `<div class="prize mega"><span class="tag">SIÊU HIẾM</span><div class="ic">${r.ic}</div><div class="nm">${esc(r.name)}</div><div class="cost">${r.cost}⭐</div><div>Cố lên, ai sẽ là người đầu tiên?</div></div>`
+    : `<div class="prize"><div class="ic">${r.ic}</div><div class="nm">${esc(r.name)}</div><div class="cost">${r.cost}⭐</div></div>`).join('');
+  let rank = '<div class="empty">Chưa có lớp.</div>';
+  if (c && c.students.length) {
+    const top = [...c.students].sort((a, b) => b.stars - a.stars);
+    rank = top.map((st, i) => {
+      const nr = nextReward(st.stars);
+      const pct = nr ? Math.max(0, st.stars / nr.cost * 100) : 100;
+      return `<div class="rank-row"><span class="no">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span><b>${esc(st.name)}</b><span class="st">${st.stars}⭐</span>
+        <div><div class="bar"><i style="width:${Math.min(100, pct)}%"></i></div><small>${nr ? `còn ${nr.cost - st.stars}⭐ → ${nr.ic} ${esc(nr.name)}` : '🏆 đủ mọi quà'}</small></div></div>`;
+    }).join('');
+  }
+  el.innerHTML = `<div class="rw-head"><h2>🎁 Kho quà</h2></div>
+    <div class="shelf">${shelf}</div>
+    <div class="rw-head"><h2>🏆 Bảng sao</h2>
+      <select id="rwClass">${S.classes.map(x => `<option value="${x.id}" ${c && x.id === c.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
+      <span class="hint">Muốn đổi quà: bấm tên học sinh ở trang Lớp học.</span></div>
+    <div class="rank">${rank}</div>`;
+  const sel = document.getElementById('rwClass');
+  if (sel) sel.onchange = () => { S.cur = sel.value; save(); renderRewards(); };
+}
+
+/* ================== Trang Cài đặt ================== */
+function renderSettings() {
+  const el = document.getElementById('p-settings'); const c = curClass();
+  const reasonRows = sign => (sign > 0 ? S.reasons.plus : S.reasons.minus).map((r, i) => `<div class="row">
+      <input type="text" class="w-ic" value="${esc(r.ic || '')}" data-edit="reason" data-sign="${sign}" data-i="${i}" data-f="ic">
+      <input type="text" class="f" value="${esc(r.text)}" data-edit="reason" data-sign="${sign}" data-i="${i}" data-f="text">
+      <input type="number" class="w-n" min="1" value="${r.n}" data-edit="reason" data-sign="${sign}" data-i="${i}" data-f="n">
+      <button class="del" data-act="delReason" data-sign="${sign}" data-i="${i}">✕</button></div>`).join('');
+  el.innerHTML = `<div class="set-grid">
+    <div class="box"><h3>🏫 Lớp học</h3>
+      ${S.classes.map(x => `<div class="row">
+        <input type="radio" name="curc" ${c && x.id === c.id ? 'checked' : ''} data-act="cls" data-cid="${x.id}" title="Chọn để sửa học sinh">
+        <input type="text" class="f" value="${esc(x.name)}" data-edit="cname" data-cid="${x.id}">
+        <span class="hint">${x.students.length} HS</span>
+        <button class="del" data-act="delClass" data-cid="${x.id}" data-guard title="Xóa lớp">✕</button></div>`).join('')}
+      <div class="row"><input type="text" class="f" id="newClass" placeholder="Tên lớp mới, VD: 4A – Thứ 7 sáng"><button class="btn soft" data-act="addClass">+ Thêm lớp</button></div>
+    </div>
+
+    <div class="box"><h3>👧 Học sinh ${c ? '— ' + esc(c.name) : ''}</h3>
+      ${c ? `<textarea id="bulk" placeholder="Dán danh sách tên, mỗi dòng một bạn (copy từ Excel cũng được)"></textarea>
+      <div class="row"><button class="btn soft" data-act="addStudents">+ Thêm vào lớp</button><span class="hint">Tên trùng sẽ bỏ qua.</span></div>
+      <div class="sub">Danh sách (${c.students.length})</div>
+      ${c.students.map(s => `<div class="row"><input type="text" class="f" value="${esc(s.name)}" data-edit="sname" data-sid="${s.id}">
+        <input type="number" class="w-n" value="${s.stars}" data-edit="sstars" data-sid="${s.id}" title="Sửa số sao trực tiếp">⭐
+        <button class="del" data-act="delStudent" data-sid="${s.id}" data-guard title="Xóa">✕</button></div>`).join('')}` : '<div class="hint">Thêm lớp trước.</div>'}
+    </div>
+
+    <div class="box"><h3>⭐ Trường hợp được CỘNG sao</h3>${reasonRows(1)}
+      <button class="btn soft" data-act="addReason" data-sign="1">+ Thêm</button></div>
+    <div class="box"><h3>💔 Trường hợp bị TRỪ sao</h3>${reasonRows(-1)}
+      <button class="btn soft" data-act="addReason" data-sign="-1">+ Thêm</button></div>
+
+    <div class="box"><h3>🎁 Quà & số sao cần</h3>
+      ${S.rewards.map((r, i) => `<div class="row">
+        <input type="text" class="w-ic" value="${esc(r.ic)}" data-edit="reward" data-i="${i}" data-f="ic">
+        <input type="text" class="f" value="${esc(r.name)}" data-edit="reward" data-i="${i}" data-f="name">
+        <input type="number" class="w-n" min="1" value="${r.cost}" data-edit="reward" data-i="${i}" data-f="cost">⭐
+        <button class="del" data-act="delReward" data-i="${i}">✕</button></div>`).join('')}
+      <button class="btn soft" data-act="addReward">+ Thêm quà</button>
+      <p class="hint">Quà có số sao cao nhất sẽ được trưng thật to ở trang Đổi quà.</p></div>
+
+    <div class="box"><h3>🔒 Khóa chống học sinh tự bấm</h3>
+      <div class="row"><select class="f" data-edit="lockmode">
+        <option value="key" ${S.lock.mode === 'key' ? 'selected' : ''}>Giữ 1 phím trên bàn phím rồi bấm chuột</option>
+        <option value="hold" ${S.lock.mode === 'hold' ? 'selected' : ''}>Nhấn giữ nút ~1 giây (dùng cho màn hình cảm ứng)</option></select></div>
+      <div class="row ${S.lock.mode === 'key' ? '' : 'hidden'}">Phím mở khóa: <input type="text" class="w-ic" maxlength="1" value="${esc(S.lock.key)}" data-edit="lockkey"> <span class="hint">nên chọn phím ít ai để ý, VD: A, Q, Z</span></div>
+      <p class="hint">Mọi thao tác cộng / trừ / đổi quà / hoàn tác / vào Cài đặt đều phải mở khóa.</p></div>
+
+    <div class="box"><h3>💾 Dữ liệu</h3>
+      <p class="hint">Dữ liệu lưu trong trình duyệt của máy đang dùng. Máy trường hay bị xóa → cuối buổi bấm <b>Xuất file</b>, lưu vào USB / Google Drive; hôm sau mở web, bấm <b>Nhập file</b> là có lại.</p>
+      <div class="row" style="flex-wrap:wrap">
+        <button class="btn soft" data-act="export">⬇️ Xuất file</button>
+        <button class="btn soft" data-act="import">⬆️ Nhập file</button>
+        <input type="file" id="impFile" accept=".json,application/json" class="hidden">
+        <button class="btn minus" data-act="wipe" data-guard>🗑️ Xóa hết làm lại</button>
+      </div></div>
+  </div>`;
+  document.getElementById('impFile').onchange = importFile;
+}
+
+document.addEventListener('change', e => {
+  const t = e.target; const f = t.dataset.edit; if (!f) return;
+  const c = curClass();
+  if (f === 'cname') { const x = S.classes.find(k => k.id === t.dataset.cid); if (x && t.value.trim()) x.name = t.value.trim(); }
+  if (f === 'sname') { const s = findStu(c, t.dataset.sid); if (s && t.value.trim()) s.name = t.value.trim(); }
+  if (f === 'sstars') { const s = findStu(c, t.dataset.sid); if (s) s.stars = parseInt(t.value) || 0; }
+  if (f === 'reason') {
+    const r = (t.dataset.sign === '1' ? S.reasons.plus : S.reasons.minus)[t.dataset.i];
+    if (r) r[t.dataset.f] = t.dataset.f === 'n' ? Math.max(1, parseInt(t.value) || 1) : t.value;
+  }
+  if (f === 'reward') { const r = S.rewards[t.dataset.i]; if (r) r[t.dataset.f] = t.dataset.f === 'cost' ? Math.max(1, parseInt(t.value) || 1) : t.value; }
+  if (f === 'lockmode') { S.lock.mode = t.value; save(); renderLock(); renderSettings(); return; }
+  if (f === 'lockkey') { const k = (t.value || 'a').toLowerCase(); S.lock.key = k; keyHeld = false; renderLock(); }
+  save(); toast('✔ Đã lưu');
+});
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(S, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `sao-lop-hoc_${dayKey()}.json`; a.click(); URL.revokeObjectURL(a.href);
+  toast('⬇️ Đã xuất file — nhớ cất vào USB / Drive');
+}
+function importFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const d = JSON.parse(rd.result);
+      if (!d.classes || !d.reasons || !d.rewards) throw 0;
+      d.lock = d.lock || { mode: 'key', key: 'a' }; d.log = d.log || [];
+      S = d; save(); renderAll(); toast('⬆️ Đã nhập dữ liệu');
+    } catch (err) { toast('File không đúng định dạng'); }
+  };
+  rd.readAsText(f);
+}
+
+/* ================== Bộ điều phối hành động ================== */
+function runAct(el) {
+  const d = el.dataset; const c = curClass();
+  switch (d.act) {
+    case 'tab': return showTab(d.tab);
+    case 'cls': S.cur = d.cid; save(); renderClasses(); if (!document.getElementById('p-settings').classList.contains('hidden')) renderSettings(); return;
+    case 'plus': return openReason(d.sid, 1);
+    case 'minus': return openReason(d.sid, -1);
+    case 'allPlus': return openReason('all', 1);
+    case 'allMinus': return openReason('all', -1);
+    case 'reason': {
+      if (!pending) return;
+      const r = (pending.sign > 0 ? S.reasons.plus : S.reasons.minus)[d.i];
+      return apply(pending.sids, pending.sign * r.n, r.text, r.ic, pending.all);
+    }
+    case 'custom': {
+      if (!pending) return;
+      const n = Math.abs(parseInt(document.getElementById('cN').value) || 0);
+      if (!n) return toast('Nhập số sao');
+      const r = document.getElementById('cR').value.trim() || (pending.sign > 0 ? 'Thưởng thêm' : 'Nhắc nhở');
+      return apply(pending.sids, pending.sign * n, r, pending.sign > 0 ? '✨' : '⚠️', pending.all);
+    }
+    case 'student': return openDetail(d.sid);
+    case 'redeem': return redeem(d.sid, d.rid);
+    case 'undo': { const ids = d.lids.split(','); ids.forEach(id => undoQuiet(id)); save(); renderClasses(); const m = document.querySelector('.modal[data-detail]'); if (m) openDetail(m.dataset.detail); return toast('↶ Đã hoàn tác'); }
+    case 'close': return closeModal();
+    case 'sort': S.sort = S.sort === 'stars' ? 'name' : 'stars'; save(); return renderClasses();
+    case 'addClass': {
+      const v = document.getElementById('newClass').value.trim(); if (!v) return toast('Nhập tên lớp');
+      const nc = { id: uid(), name: v, students: [] }; S.classes.push(nc); S.cur = nc.id; save(); renderSettings(); renderClasses(); return toast('Đã thêm lớp ' + v);
+    }
+    case 'delClass': {
+      const x = S.classes.find(k => k.id === d.cid); if (!x) return;
+      if (x.students.length && !confirmInline(el, `Xóa lớp "${x.name}"?`)) return;
+      S.classes = S.classes.filter(k => k.id !== d.cid); S.log = S.log.filter(l => l.c !== d.cid);
+      if (S.cur === d.cid) S.cur = S.classes[0] && S.classes[0].id; save(); renderSettings(); renderClasses(); return toast('Đã xóa lớp');
+    }
+    case 'addStudents': {
+      const lines = document.getElementById('bulk').value.split(/\r?\n/).map(s => s.replace(/\t.*/, '').replace(/^\s*\d+[\.\)\s]+/, '').trim()).filter(Boolean);
+      const have = new Set(c.students.map(s => s.name.toLowerCase())); let n = 0;
+      lines.forEach(nm => { if (!have.has(nm.toLowerCase())) { c.students.push({ id: uid(), name: nm, stars: 0, earned: 0 }); have.add(nm.toLowerCase()); n++; } });
+      save(); renderSettings(); renderClasses(); return toast(`Đã thêm ${n} học sinh`);
+    }
+    case 'delStudent': {
+      const s = findStu(c, d.sid); if (!s) return;
+      if (!confirmInline(el, `Xóa ${s.name}?`)) return;
+      c.students = c.students.filter(k => k.id !== d.sid); S.log = S.log.filter(l => l.s !== d.sid); save(); renderSettings(); renderClasses(); return;
+    }
+    case 'addReason': (d.sign === '1' ? S.reasons.plus : S.reasons.minus).push({ text: 'Lý do mới', n: 1, ic: d.sign === '1' ? '⭐' : '⚠️' }); save(); return renderSettings();
+    case 'delReason': (d.sign === '1' ? S.reasons.plus : S.reasons.minus).splice(+d.i, 1); save(); return renderSettings();
+    case 'addReward': S.rewards.push({ id: uid(), name: 'Quà mới', ic: '🎁', cost: 30 }); save(); return renderSettings();
+    case 'delReward': S.rewards.splice(+d.i, 1); save(); return renderSettings();
+    case 'export': return exportData();
+    case 'import': return document.getElementById('impFile').click();
+    case 'wipe': if (!confirmInline(el, 'Xóa SẠCH mọi lớp, học sinh, sao?')) return; S = defaults(); S.classes = []; S.cur = null; save(); renderAll(); return toast('Đã xóa hết');
+  }
+}
+function undoQuiet(lid) {
+  const i = S.log.findIndex(l => l.id === lid); if (i < 0) return;
+  const l = S.log[i]; const c = S.classes.find(x => x.id === l.c); const st = findStu(c, l.s);
+  if (st) { st.stars -= l.n; if (l.k === 'pt' && l.n > 0) st.earned -= l.n; }
+  S.log.splice(i, 1);
+}
+/* Bấm lần 1 đổi chữ thành "Chắc chưa?", bấm lần 2 trong 3 giây mới thực hiện (không dùng hộp thoại confirm) */
+function confirmInline(el, msg) {
+  if (el.dataset.armed) { delete el.dataset.armed; return true; }
+  el.dataset.armed = '1'; const old = el.innerHTML; el.innerHTML = 'Chắc chưa? Bấm lại'; toast('⚠️ ' + msg + ' Bấm lại lần nữa để xác nhận');
+  setTimeout(() => { if (el.isConnected) { delete el.dataset.armed; el.innerHTML = old; } }, 3000);
+  return false;
+}
+
+/* ================== Tabs ================== */
+let curTab = 'classes';
+function showTab(t) {
+  curTab = t;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  ['classes', 'rewards', 'keyboard', 'settings'].forEach(x => document.getElementById('p-' + x).classList.toggle('hidden', x !== t));
+  if (t === 'classes') renderClasses();
+  if (t === 'rewards') renderRewards();
+  if (t === 'settings') renderSettings();
+  if (t === 'keyboard') kbInit();
+  clearKbDown();
+}
+function renderAll() { renderLock(); showTab(curTab); }
+
+/* ================== BÀN PHÍM ẢO ================== */
+const KEYS = []; // {code,x,y,w,h,label,sub,cls}
+function K(code, label, x, y, w = 1, h = 1, sub = '', cls = '') { KEYS.push({ code, label, x, y, w, h, sub, cls }); }
+(function buildLayout() {
+  // Hàng F
+  K('Escape', 'Esc', 0, 0, 1, 1, '', 'wide');
+  ['F1','F2','F3','F4'].forEach((f, i) => K(f, f, 2 + i, 0));
+  ['F5','F6','F7','F8'].forEach((f, i) => K(f, f, 6.5 + i, 0));
+  ['F9','F10','F11','F12'].forEach((f, i) => K(f, f, 11 + i, 0));
+  K('PrintScreen', 'PrtSc', 15.25, 0, 1, 1, '', 'wide'); K('ScrollLock', 'Scroll<br>Lock', 16.25, 0, 1, 1, '', 'wide'); K('Pause', 'Pause', 17.25, 0, 1, 1, '', 'wide');
+  // Hàng số
+  let x = 0, y = 1.5;
+  [['Backquote','`','~'],['Digit1','1','!'],['Digit2','2','@'],['Digit3','3','#'],['Digit4','4','$'],['Digit5','5','%'],['Digit6','6','^'],['Digit7','7','&'],['Digit8','8','*'],['Digit9','9','('],['Digit0','0',')'],['Minus','-','_'],['Equal','=','+']]
+    .forEach(([c, l, s]) => { K(c, l, x, y, 1, 1, s); x++; });
+  K('Backspace', '⟵ Backspace', x, y, 2, 1, '', 'wide');
+  x = 0; y = 2.5; K('Tab', 'Tab ⇥', x, y, 1.5, 1, '', 'wide'); x += 1.5;
+  'QWERTYUIOP'.split('').forEach(ch => { K('Key' + ch, ch, x, y, 1, 1, '', 'letter'); x++; });
+  [['BracketLeft','[','{'],['BracketRight',']','}']].forEach(([c, l, s]) => { K(c, l, x, y, 1, 1, s); x++; });
+  K('Backslash', '\\', x, y, 1.5, 1, '|');
+  x = 0; y = 3.5; K('CapsLock', 'Caps Lock', x, y, 1.75, 1, '', 'wide'); x += 1.75;
+  'ASDFGHJKL'.split('').forEach(ch => { K('Key' + ch, ch, x, y, 1, 1, '', 'letter'); x++; });
+  [['Semicolon',';',':'],['Quote',"'",'"']].forEach(([c, l, s]) => { K(c, l, x, y, 1, 1, s); x++; });
+  K('Enter', 'Enter ↵', x, y, 2.25, 1, '', 'wide');
+  x = 0; y = 4.5; K('ShiftLeft', '⇧ Shift', x, y, 2.25, 1, '', 'wide'); x += 2.25;
+  'ZXCVBNM'.split('').forEach(ch => { K('Key' + ch, ch, x, y, 1, 1, '', 'letter'); x++; });
+  [['Comma',',','<'],['Period','.','>'],['Slash','/','?']].forEach(([c, l, s]) => { K(c, l, x, y, 1, 1, s); x++; });
+  K('ShiftRight', '⇧ Shift', x, y, 2.75, 1, '', 'wide');
+  x = 0; y = 5.5;
+  [['ControlLeft','Ctrl',1.25],['MetaLeft','⊞ Win',1.25],['AltLeft','Alt',1.25],['Space','',6.25],['AltRight','Alt',1.25],['MetaRight','⊞ Win',1.25],['ContextMenu','☰',1.25],['ControlRight','Ctrl',1.25]]
+    .forEach(([c, l, w]) => { K(c, l, x, y, w, 1, '', 'wide'); x += w; });
+  // Cụm điều hướng
+  K('Insert', 'Insert', 15.25, 1.5, 1, 1, '', 'wide'); K('Home', 'Home', 16.25, 1.5, 1, 1, '', 'wide'); K('PageUp', 'Page<br>Up', 17.25, 1.5, 1, 1, '', 'wide');
+  K('Delete', 'Delete', 15.25, 2.5, 1, 1, '', 'wide'); K('End', 'End', 16.25, 2.5, 1, 1, '', 'wide'); K('PageDown', 'Page<br>Down', 17.25, 2.5, 1, 1, '', 'wide');
+  K('ArrowUp', '▲', 16.25, 4.5); K('ArrowLeft', '◀', 15.25, 5.5); K('ArrowDown', '▼', 16.25, 5.5); K('ArrowRight', '▶', 17.25, 5.5);
+  // Bàn phím số
+  const nx = 18.5;
+  K('NumLock', 'Num<br>Lock', nx, 1.5, 1, 1, '', 'wide'); K('NumpadDivide', '/', nx + 1, 1.5); K('NumpadMultiply', '*', nx + 2, 1.5); K('NumpadSubtract', '−', nx + 3, 1.5);
+  const np = [['Numpad7','7','Home'],['Numpad8','8','▲'],['Numpad9','9','PgUp'],['Numpad4','4','◀'],['Numpad5','5',''],['Numpad6','6','▶'],['Numpad1','1','End'],['Numpad2','2','▼'],['Numpad3','3','PgDn']];
+  np.forEach(([c, l, alt], i) => K(c, l, nx + (i % 3), 2.5 + Math.floor(i / 3), 1, 1, alt, 'np'));
+  K('NumpadAdd', '+', nx + 3, 2.5, 1, 2); K('NumpadEnter', 'Enter', nx + 3, 4.5, 1, 2, '', 'wide');
+  K('Numpad0', '0', nx, 5.5, 2, 1, 'Ins', 'np'); K('NumpadDecimal', '.', nx + 2, 5.5, 1, 1, 'Del', 'np');
+})();
+const W = 22.5, H = 6.5;
+const SHIFT_MAP = {}; KEYS.forEach(k => { if (k.sub && !k.cls.includes('np')) SHIFT_MAP[k.code] = k.sub; });
+const KEY_NAME = {
+  Escape: 'Esc — thoát / hủy', Tab: 'Tab — nhảy ô / thụt lề', CapsLock: 'Caps Lock — bật/tắt CHỮ HOA', ShiftLeft: 'Shift', ShiftRight: 'Shift',
+  ControlLeft: 'Ctrl', ControlRight: 'Ctrl', AltLeft: 'Alt', AltRight: 'Alt', MetaLeft: 'Phím Windows', MetaRight: 'Phím Windows', ContextMenu: 'Menu chuột phải',
+  Space: 'Phím cách (Space)', Enter: 'Enter — xuống dòng / đồng ý', Backspace: 'Backspace — xóa chữ bên TRÁI', Delete: 'Delete — xóa chữ bên PHẢI',
+  NumLock: 'Num Lock — bật/tắt bàn phím số', ScrollLock: 'Scroll Lock', PrintScreen: 'Print Screen — chụp màn hình', Insert: 'Insert — chế độ gõ đè',
+  Home: 'Home — về đầu dòng', End: 'End — về cuối dòng', PageUp: 'Page Up — lên 1 trang', PageDown: 'Page Down — xuống 1 trang',
+  ArrowUp: 'Mũi tên lên', ArrowDown: 'Mũi tên xuống', ArrowLeft: 'Mũi tên trái', ArrowRight: 'Mũi tên phải', NumpadEnter: 'Enter (bàn phím số)',
+  F1: 'F1 — trợ giúp', F2: 'F2 — đổi tên', F5: 'F5 — làm mới', F11: 'F11 — toàn màn hình',
+};
+const MODS = { ControlLeft: 'Ctrl', ControlRight: 'Ctrl', AltLeft: 'Alt', AltRight: 'Alt', ShiftLeft: 'Shift', ShiftRight: 'Shift', MetaLeft: 'Win', MetaRight: 'Win' };
+const TOKEN = { Ctrl: 'ControlLeft', Alt: 'AltLeft', Shift: 'ShiftLeft', Win: 'MetaLeft', Esc: 'Escape', Tab: 'Tab', Delete: 'Delete', Enter: 'Enter', Space: 'Space', PrtSc: 'PrintScreen', Home: 'Home', End: 'End', Backspace: 'Backspace', '←': 'ArrowLeft', '→': 'ArrowRight', '↑': 'ArrowUp', '↓': 'ArrowDown' };
+const tokCode = t => TOKEN[t] || (/^F\d+$/.test(t) ? t : /^[A-Z]$/.test(t) ? 'Key' + t : /^\d$/.test(t) ? 'Digit' + t : t);
+const SHORTCUTS = [
+  ['Cơ bản', [['Ctrl+C', 'Sao chép'], ['Ctrl+X', 'Cắt'], ['Ctrl+V', 'Dán'], ['Ctrl+Z', 'Hoàn tác (quay lại)'], ['Ctrl+Y', 'Làm lại'], ['Ctrl+A', 'Chọn tất cả'], ['Ctrl+S', 'Lưu'], ['Ctrl+P', 'In'], ['Ctrl+N', 'Tạo mới'], ['Ctrl+O', 'Mở tệp'], ['Ctrl+F', 'Tìm kiếm']]],
+  ['Soạn thảo (Word)', [['Ctrl+B', 'In đậm'], ['Ctrl+I', 'In nghiêng'], ['Ctrl+U', 'Gạch chân'], ['Ctrl+E', 'Căn giữa'], ['Ctrl+L', 'Căn trái'], ['Ctrl+R', 'Căn phải'], ['Ctrl+Home', 'Về đầu văn bản'], ['Ctrl+End', 'Về cuối văn bản'], ['Shift+End', 'Bôi đen tới cuối dòng']]],
+  ['Cửa sổ & Windows', [['Alt+F4', 'Đóng cửa sổ / chương trình'], ['Alt+Tab', 'Chuyển qua lại các cửa sổ'], ['Win+D', 'Ra màn hình Desktop'], ['Win+E', 'Mở File Explorer'], ['Win+L', 'Khóa máy'], ['Win+R', 'Mở hộp thoại Run'], ['Win+I', 'Mở Cài đặt'], ['Win+Shift+S', 'Chụp 1 vùng màn hình'], ['PrtSc', 'Chụp toàn màn hình'], ['Ctrl+Shift+Esc', 'Mở Task Manager'], ['Ctrl+Alt+Delete', 'Màn hình bảo mật'], ['F2', 'Đổi tên tệp'], ['F5', 'Làm mới'], ['Shift+Delete', 'Xóa vĩnh viễn (không vào thùng rác)'], ['Ctrl+Shift+N', 'Tạo thư mục mới']]],
+];
+const SC_INDEX = {}; SHORTCUTS.forEach(([, l]) => l.forEach(([k, d]) => { SC_INDEX[k] = d; }));
+
+const kb = { caps: false, num: true, scroll: false, held: new Set(), text: '', inited: false, anim: [] };
+
+function kbInit() {
+  if (kb.inited) return kbRender();
+  kb.inited = true;
+  document.getElementById('p-keyboard').innerHTML = `<div class="kb-wrap">
+    <div class="kb-top">
+      <div class="screen" id="kbScreen"></div>
+      <div class="caption" id="kbCap"><div class="combo">Bấm thử phím nào đó…</div><div class="desc">Hoặc chọn một tổ hợp phím ở dưới để xem cách bấm</div></div>
+    </div>
+    <div class="board"><div class="board-in" id="kbBoard"></div></div>
+    <div class="kb-note">💡 Bấm chuột vào Ctrl / Alt / Shift / Win để GIỮ (sáng cam), rồi bấm phím tiếp theo để tạo tổ hợp. Gõ bàn phím thật cũng sáng theo. Caps Lock / Num Lock có đèn báo góc phải.</div>
+    <div class="sc-list">${SHORTCUTS.map(([g, list]) => `<div class="sc-group"><h4>${g}</h4><div>${list.map(([k, d]) => `<button class="sc" data-sc="${k}"><b>${k.replace(/\+/g, ' + ')}</b><small>${d}</small></button>`).join('')}</div></div>`).join('')}</div>
+  </div>`;
+  const board = document.getElementById('kbBoard');
+  board.innerHTML = KEYS.map(k => `<div class="key ${k.cls}" data-code="${k.code}" style="left:${k.x / W * 100}%;top:${k.y / H * 100}%;width:calc(${k.w / W * 100}% - .4cqw);height:calc(${k.h / H * 100}% - .5cqw)"></div>`).join('')
+    + `<div class="leds" style="left:${18.5 / W * 100}%;top:0;width:calc(${4 / W * 100}% - .4cqw);height:calc(${1 / H * 100}% - .5cqw)">
+        <div class="led" id="ledNum"><i></i>Num</div><div class="led" id="ledCaps"><i></i>Caps</div><div class="led" id="ledScroll"><i></i>Scroll</div></div>`;
+  board.addEventListener('pointerdown', e => { const k = e.target.closest('.key'); if (k) { e.preventDefault(); vPress(k.dataset.code); } });
+  document.querySelector('#p-keyboard .sc-list').addEventListener('click', e => { const b = e.target.closest('.sc'); if (b) playShortcut(b.dataset.sc, b); });
+  document.getElementById('kbScreen').addEventListener('click', e => { if (e.target.classList.contains('clr')) { kb.text = ''; kbScreen(); } });
+  kbRender();
+}
+const kEl = code => document.querySelector(`#kbBoard .key[data-code="${code}"]`);
+const shiftOn = () => [...kb.held].some(c => MODS[c] === 'Shift');
+
+function kbRender() {
+  const sh = shiftOn();
+  KEYS.forEach(k => {
+    const el = kEl(k.code); if (!el) return;
+    let html;
+    if (k.cls.includes('letter')) html = (kb.caps !== sh) ? k.label : k.label.toLowerCase();
+    else if (k.cls.includes('np')) html = `<span class="${kb.num ? 'num-on' : 'num-off'}" style="font-size:1.45cqw">${k.label}</span>${k.sub ? `<span class="t ${kb.num ? 'num-off' : 'num-on'}">${k.sub}</span>` : ''}`;
+    else if (k.sub) html = `<span class="s">${k.sub}</span>${k.label}`;
+    else html = k.label;
+    el.innerHTML = html;
+    el.classList.toggle('held', kb.held.has(k.code));
+  });
+  document.getElementById('ledNum').classList.toggle('on', kb.num);
+  document.getElementById('ledCaps').classList.toggle('on', kb.caps);
+  document.getElementById('ledScroll').classList.toggle('on', kb.scroll);
+  kbScreen();
+}
+function kbScreen() {
+  const el = document.getElementById('kbScreen'); if (!el) return;
+  el.innerHTML = esc(kb.text) + '<span class="cur"></span><button class="clr">xóa màn hình ✕</button>';
+}
+function flash(code, ms = 220) {
+  const el = kEl(code); if (!el) return;
+  el.classList.add('down'); setTimeout(() => el.classList.remove('down'), ms);
+}
+function caption(combo, desc) {
+  const parts = combo.map(c => `<kbd>${c}</kbd>`).join(' + ');
+  document.getElementById('kbCap').innerHTML = `<div class="combo">${parts}</div><div class="desc">${desc || ''}</div>`;
+}
+function keyLabel(code) {
+  const k = KEYS.find(x => x.code === code); if (!k) return code;
+  if (MODS[code]) return MODS[code];
+  if (k.cls.includes('letter')) return k.label;
+  return ({ Space: 'Space', ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→', Backspace: 'Backspace', Enter: 'Enter', Tab: 'Tab', CapsLock: 'Caps Lock', NumLock: 'Num Lock', ScrollLock: 'Scroll Lock', Escape: 'Esc', PrintScreen: 'PrtSc' })[code] || k.label.replace(/<br>/g, ' ').replace(/^[⟵⇧⊞]\s*/, '');
+}
+function typeFrom(code) {
+  const k = KEYS.find(x => x.code === code); if (!k) return;
+  const sh = shiftOn();
+  if (code === 'Backspace') kb.text = kb.text.slice(0, -1);
+  else if (code === 'Enter' || code === 'NumpadEnter') kb.text += '\n';
+  else if (code === 'Space') kb.text += ' ';
+  else if (code === 'Tab') kb.text += '    ';
+  else if (k.cls.includes('letter')) kb.text += (kb.caps !== sh) ? k.label : k.label.toLowerCase();
+  else if (k.cls.includes('np')) { if (kb.num) kb.text += k.label; }
+  else if (/^Numpad(Divide|Multiply|Subtract|Add)$/.test(code)) kb.text += ({ NumpadDivide: '/', NumpadMultiply: '*', NumpadSubtract: '-', NumpadAdd: '+' })[code];
+  else if (SHIFT_MAP[code] !== undefined || /^(Backquote|Digit\d|Minus|Equal|Bracket|Backslash|Semicolon|Quote|Comma|Period|Slash)/.test(code)) kb.text += sh && SHIFT_MAP[code] ? SHIFT_MAP[code] : k.label;
+  if (kb.text.length > 400) kb.text = kb.text.slice(-400);
+}
+function comboText(mods, code) {
+  const order = ['Ctrl', 'Win', 'Alt', 'Shift'];
+  const m = order.filter(x => mods.has(x));
+  return [...m, keyLabel(code)];
+}
+function describe(parts) {
+  const key = parts.join('+').replace('Caps Lock', 'CapsLock');
+  return SC_INDEX[key];
+}
+
+/* Bấm chuột trên bàn phím ảo */
+function vPress(code) {
+  stopAnim();
+  if (MODS[code]) { // giữ / thả phím bổ trợ
+    if (kb.held.has(code)) kb.held.delete(code); else kb.held.add(code);
+    kbRender();
+    const mods = new Set([...kb.held].map(c => MODS[c]));
+    caption([...['Ctrl', 'Win', 'Alt', 'Shift'].filter(x => mods.has(x))].concat(mods.size ? ['…'] : []), mods.size ? 'Đang giữ — bấm thêm 1 phím nữa' : 'Đã thả phím');
+    return;
+  }
+  if (code === 'CapsLock') kb.caps = !kb.caps;
+  if (code === 'NumLock') kb.num = !kb.num;
+  if (code === 'ScrollLock') kb.scroll = !kb.scroll;
+  flash(code);
+  const mods = new Set([...kb.held].map(c => MODS[c]));
+  const parts = comboText(mods, code);
+  if (mods.size) {
+    const d = describe(parts);
+    caption(parts, d || 'Tổ hợp này không có chức năng phổ biến');
+    if (mods.size === 1 && mods.has('Shift')) typeFrom(code);
+    kb.held.clear();
+  } else {
+    typeFrom(code);
+    caption(parts, keyDesc(code));
+  }
+  kbRender();
+}
+function keyDesc(code) {
+  if (code === 'CapsLock') return kb.caps ? 'Đèn Caps SÁNG → gõ ra CHỮ HOA' : 'Đèn Caps TẮT → gõ ra chữ thường';
+  if (code === 'NumLock') return kb.num ? 'Đèn Num SÁNG → bàn phím bên phải gõ ra SỐ' : 'Đèn Num TẮT → bàn phím số thành phím di chuyển';
+  if (code === 'ScrollLock') return kb.scroll ? 'Đèn Scroll sáng (ít dùng, Excel: cuộn bảng bằng mũi tên)' : 'Đèn Scroll tắt';
+  const k = KEYS.find(x => x.code === code);
+  if (k && k.cls.includes('np') && !kb.num) return `Num Lock đang TẮT → phím này là "${k.sub || '(không có tác dụng)'}"`;
+  return KEY_NAME[code] || (k && k.cls.includes('letter') ? `Chữ ${k.label}` : '');
+}
+
+/* Bàn phím thật */
+function clearKbDown() { document.querySelectorAll('#kbBoard .key.down').forEach(k => k.classList.remove('down')); }
+window.addEventListener('keydown', e => {
+  if (curTab !== 'keyboard' || !kb.inited) return;
+  if (e.target.matches('input,textarea,select')) return;
+  e.preventDefault(); stopAnim();
+  if (e.getModifierState) { kb.caps = e.getModifierState('CapsLock'); kb.num = e.getModifierState('NumLock'); kb.scroll = e.getModifierState('ScrollLock'); }
+  const el = kEl(e.code); if (el) el.classList.add('down');
+  if (MODS[e.code]) { kbRender(); return; }
+  const mods = new Set(); if (e.ctrlKey) mods.add('Ctrl'); if (e.altKey) mods.add('Alt'); if (e.shiftKey) mods.add('Shift'); if (e.metaKey) mods.add('Win');
+  const parts = comboText(mods, e.code);
+  if (mods.size && !(mods.size === 1 && mods.has('Shift'))) caption(parts, describe(parts) || '');
+  else {
+    if (e.key === 'Backspace') kb.text = kb.text.slice(0, -1);
+    else if (e.key === 'Enter') kb.text += '\n';
+    else if (e.key === 'Tab') kb.text += '    ';
+    else if (e.key.length === 1) kb.text += e.key;
+    caption(parts, mods.has('Shift') ? (describe(parts) || 'Giữ Shift → chữ hoa / kí tự phía trên') : keyDesc(e.code));
+  }
+  kbRender();
+});
+window.addEventListener('keyup', e => {
+  if (curTab !== 'keyboard' || !kb.inited) return;
+  if (e.target.matches('input,textarea,select')) return;
+  e.preventDefault();
+  const el = kEl(e.code); if (el) el.classList.remove('down');
+  if (e.getModifierState) { kb.caps = e.getModifierState('CapsLock'); kb.num = e.getModifierState('NumLock'); }
+  if (e.code === 'PrintScreen') { flash('PrintScreen', 300); caption(['PrtSc'], SC_INDEX['PrtSc']); }
+  kbRender();
+});
+window.addEventListener('blur', clearKbDown);
+
+/* Phát tổ hợp phím mẫu: lần lượt giữ phím bổ trợ (cam), rồi nhấn phím cuối (xanh) */
+function stopAnim() {
+  kb.anim.forEach(clearTimeout); kb.anim = [];
+  document.querySelectorAll('.sc.on').forEach(b => b.classList.remove('on'));
+}
+function playShortcut(sc, btn) {
+  stopAnim(); kb.held.clear(); clearKbDown(); kbRender();
+  btn.classList.add('on');
+  const toks = sc.split('+'); const codes = toks.map(tokCode);
+  const step = 550; let t = 0;
+  caption(toks.map(x => x === 'PrtSc' ? 'PrtSc' : x), SC_INDEX[sc]);
+  codes.forEach((c, i) => {
+    kb.anim.push(setTimeout(() => {
+      if (i < codes.length - 1) { kb.held.add(c); kbRender(); }
+      else { const el = kEl(c); if (el) el.classList.add('down'); }
+    }, t += step));
+  });
+  kb.anim.push(setTimeout(() => {
+    kb.held.clear(); clearKbDown(); kbRender(); btn.classList.remove('on');
+  }, t + 2200));
+}
+
+/* ================== Khởi động ================== */
+renderAll();
+</script>
+</body>
+</html>
