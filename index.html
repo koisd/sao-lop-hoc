@@ -6,6 +6,7 @@
 <title>Sao Lớp Học</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link href="bai-giang/bai-giang.css" rel="stylesheet">
 <style>
 :root{
   --bg:#fff8ec; --panel:#ffffff; --ink:#2b2340; --muted:#7a7090; --line:#eadfcf;
@@ -228,6 +229,7 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
   <nav id="tabs">
     <button data-act="tab" data-tab="classes" class="on">🏫 Lớp học</button>
     <button data-act="tab" data-tab="rewards">🎁 Đổi quà</button>
+    <button data-act="tab" data-tab="lessons">📚 Bài giảng</button>
     <button data-act="tab" data-tab="keyboard">⌨️ Bàn phím</button>
     <button data-act="tab" data-tab="settings" data-guard>⚙️ Cài đặt</button>
   </nav>
@@ -236,6 +238,7 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 <main>
   <section id="p-classes"></section>
   <section id="p-rewards" class="hidden"></section>
+  <section id="p-lessons" class="hidden"></section>
   <section id="p-keyboard" class="hidden"></section>
   <section id="p-settings" class="hidden"></section>
 </main>
@@ -249,6 +252,18 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
   <div class="err" id="gateErr"></div>
 </form></div>
 
+<!-- Bài giảng tương tác: mỗi bài 1 file, muốn bỏ bài nào thì xóa dòng của bài đó -->
+<script src="bai-giang/core.js"></script>
+<script src="bai-giang/trinh-duyet.js"></script>
+<script src="bai-giang/tim-kiem.js"></script>
+<script src="bai-giang/nhap-xuat.js"></script>
+<script src="bai-giang/trang-chieu.js"></script>
+<script src="bai-giang/url.js"></script>
+<script src="bai-giang/internet-ip.js"></script>
+<script src="bai-giang/bang-tinh.js"></script>
+<script src="bai-giang/email.js"></script>
+<script src="bai-giang/rieng-tu.js"></script>
+<script src="bai-giang/tinh-huong.js"></script>
 <script>
 /* ================== Dữ liệu ================== */
 const STORE = 'saoLopHoc_v1';
@@ -689,6 +704,8 @@ function runAct(el) {
     case 'redeem': return redeem(d.sid, d.rid);
     case 'undo': { const ids = d.lids.split(','); ids.forEach(id => undoQuiet(id)); save(); renderClasses(); const m = document.querySelector('.modal[data-detail]'); if (m) openDetail(m.dataset.detail); return toast('↶ Đã hoàn tác'); }
     case 'close': return closeModal();
+    case 'lesson': curLesson = d.id; renderLessons(); return window.scrollTo(0, 0);
+    case 'lessonBack': curLesson = null; return renderLessons();
     case 'sort': S.sort = S.sort === 'stars' ? 'name' : 'stars'; save(); return renderClasses();
     case 'addClass': {
       const v = document.getElementById('newClass').value.trim(); if (!v) return toast('Nhập tên lớp');
@@ -742,16 +759,40 @@ function confirmInline(el, msg) {
   return false;
 }
 
+/* ================== Bài giảng ================== */
+let curLesson = null;
+function renderLessons() {
+  const el = document.getElementById('p-lessons');
+  const L = (window.BG && BG.list) || [];
+  const les = L.find(l => l.id === curLesson);
+  if (les) {
+    el.innerHTML = `<div class="bg-head"><button class="btn soft" data-act="lessonBack">← Danh sách bài</button>
+      <div><h2>${les.icon} ${esc(les.title)}</h2><div class="bg-topics">${les.topics.map(t => `<span>${esc(t)}</span>`).join('')}</div></div></div>
+      ${les.tip ? `<details class="bg-tip"><summary>💡 Gợi ý cách dạy (chỉ thầy/cô đọc)</summary><div>${les.tip}</div></details>` : ''}
+      <div class="bg-body" id="bgBody"></div>`;
+    try { les.render(document.getElementById('bgBody')); }
+    catch (e) { document.getElementById('bgBody').innerHTML = '<div class="empty">Bài này bị lỗi, báo lại để sửa nhé.</div>'; console.error(e); }
+    return;
+  }
+  el.innerHTML = [4, 5].map(k => {
+    const tag = k === 4 ? 'LV2' : 'LV3';
+    return `<h2 class="bg-group">Khối ${k} <small>IC3 Spark ${tag}</small></h2><div class="bg-menu">${L.filter(l => l.khoi.includes(k)).map(l => `<button class="bg-card" data-act="lesson" data-id="${l.id}">
+      <span class="ic">${l.icon}</span><b>${esc(l.title)}</b><small>${esc(l.desc)}</small>
+      <span class="tp">${l.topics.filter(t => t.startsWith(tag)).map(esc).join('<br>')}</span></button>`).join('')}</div>`;
+  }).join('');
+}
+
 /* ================== Tabs ================== */
 let curTab = 'classes';
 function showTab(t) {
   curTab = t;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  ['classes', 'rewards', 'keyboard', 'settings'].forEach(x => document.getElementById('p-' + x).classList.toggle('hidden', x !== t));
+  ['classes', 'rewards', 'lessons', 'keyboard', 'settings'].forEach(x => document.getElementById('p-' + x).classList.toggle('hidden', x !== t));
   if (t === 'classes') renderClasses();
   if (t === 'rewards') renderRewards();
   if (t === 'settings') renderSettings();
   if (t === 'keyboard') kbInit();
+  if (t === 'lessons') renderLessons();
   clearKbDown();
 }
 function renderAll() { renderLock(); showTab(curTab); }
