@@ -138,6 +138,9 @@ h4{margin:14px 0 6px;font-size:18px}
 .rw-head select{padding:6px 12px;border-radius:10px;border:2px solid var(--line);background:#fff;font-weight:700}
 .shelf{display:flex;gap:14px;flex-wrap:wrap;align-items:stretch;margin-bottom:20px}
 .prize{background:var(--panel);border-radius:20px;padding:16px;box-shadow:var(--shadow);flex:1 1 180px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:4px}
+.prize .pimg{width:100%;max-width:240px;aspect-ratio:1;object-fit:cover;border-radius:16px;margin-bottom:6px}
+.gift .gimg{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
+.credit{font-size:12px;margin:-10px 0 18px}
 .prize .ic{font-size:52px;line-height:1}
 .prize .nm{font-size:22px;font-weight:800}
 .prize .cost{font-size:26px;font-weight:800;color:var(--star)}
@@ -282,9 +285,9 @@ function defaults() {
       ],
     },
     rewards: [
-      { id: uid(), name: 'Sticker', ic: '🌟', cost: 15 },
-      { id: uid(), name: 'Squishy', ic: '🍡', cost: 60 },
-      { id: uid(), name: 'LEGO', ic: '🧱', cost: 200 },
+      { id: uid(), name: 'Sticker', ic: '🌟', cost: 15, img: 'img/sticker.jpg' },
+      { id: uid(), name: 'Squishy', ic: '🍡', cost: 60, img: 'img/squishy.jpg' },
+      { id: uid(), name: 'LEGO', ic: '🧱', cost: 200, img: 'img/lego.jpg' },
     ],
     lock: { mode: 'key', key: 'a' },
     cur: null,
@@ -299,6 +302,10 @@ function load() {
 let S = load() || defaults();
 // bản cũ để LEGO 999⭐ → đổi về 200⭐
 S.rewards.forEach(r => { if (r.name === 'LEGO' && r.cost === 999) r.cost = 200; });
+// gắn ảnh có sẵn cho 3 món quà mặc định
+const REWARD_IMG = { sticker: 'img/sticker.jpg', squishy: 'img/squishy.jpg', lego: 'img/lego.jpg' };
+S.rewards.forEach(r => { const k = r.name.trim().toLowerCase(); if (!r.img && REWARD_IMG[k]) r.img = REWARD_IMG[k]; });
+const rwPic = (r, cls) => r.img ? `<img class="${cls}" src="${esc(r.img)}" alt="${esc(r.name)}" loading="lazy">` : `<div class="ic">${r.ic}</div>`;
 function save() { try { localStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { toast('⚠️ Không lưu được vào trình duyệt — hãy Xuất file dự phòng'); } }
 
 const curClass = () => S.classes.find(c => c.id === S.cur) || S.classes[0];
@@ -523,7 +530,7 @@ function openDetail(sid) {
     </div>
     <h4>🎁 Đổi quà</h4>
     <div class="gifts">${[...S.rewards].sort((a, b) => a.cost - b.cost).map(r => `<div class="gift">
-      <div class="ic">${r.ic}</div><b>${esc(r.name)}</b><span>${r.cost}⭐ ${st.stars >= r.cost ? '' : `<small style="color:var(--muted)">(thiếu ${r.cost - st.stars})</small>`}</span>
+      ${rwPic(r, 'gimg')}<b>${esc(r.name)}</b><span>${r.cost}⭐ ${st.stars >= r.cost ? '' : `<small style="color:var(--muted)">(thiếu ${r.cost - st.stars})</small>`}</span>
       <button data-act="redeem" data-sid="${sid}" data-rid="${r.id}" data-guard ${st.stars >= r.cost ? '' : 'disabled'}>Đổi</button></div>`).join('')}</div>
     <h4>📅 Hôm nay</h4>${today.length ? today.map(row).join('') : '<div class="hint">Chưa có.</div>'}
     <h4>🗂️ Trước đó</h4>${older.length ? older.map(row).join('') : '<div class="hint">Chưa có.</div>'}`, `data-detail="${sid}"`);
@@ -534,7 +541,7 @@ function renderRewards() {
   const el = document.getElementById('p-rewards');
   const c = curClass();
   const sorted = [...S.rewards].sort((a, b) => a.cost - b.cost);
-  const shelf = sorted.map(r => `<div class="prize"><div class="ic">${r.ic}</div><div class="nm">${esc(r.name)}</div><div class="cost">${r.cost}⭐</div></div>`).join('');
+  const shelf = sorted.map(r => `<div class="prize">${rwPic(r, 'pimg')}<div class="nm">${esc(r.name)}</div><div class="cost">${r.cost}⭐</div></div>`).join('');
   let rank = '<div class="empty">Chưa có lớp.</div>';
   if (c && c.students.length) {
     const top = [...c.students].sort((a, b) => b.stars - a.stars);
@@ -547,6 +554,7 @@ function renderRewards() {
   }
   el.innerHTML = `<div class="rw-head"><h2>🎁 Kho quà</h2></div>
     <div class="shelf">${shelf}</div>
+    <p class="hint credit">Ảnh: “Big Sticker Sheets” – StickerGiant, “17/365 Toys: Smile” – xtheowl (Flickr, CC BY 2.0); “Lego Color Bricks” – Alan Chia (Wikimedia Commons, CC BY-SA 2.0). Ảnh đã được cắt vuông.</p>
     <div class="rw-head"><h2>🏆 Bảng sao</h2>
       <select id="rwClass">${S.classes.map(x => `<option value="${x.id}" ${c && x.id === c.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select>
       <span class="hint">Muốn đổi quà: bấm tên học sinh ở trang Lớp học.</span></div>
