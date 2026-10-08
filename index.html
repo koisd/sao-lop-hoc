@@ -533,7 +533,7 @@ function renderSettings() {
     </div>
 
     <div class="box"><h3>👧 Học sinh ${c ? '— ' + esc(c.name) : ''}</h3>
-      ${c ? `<textarea id="bulk" placeholder="Dán danh sách tên, mỗi dòng một bạn (copy từ Excel cũng được)"></textarea>
+      ${c ? `<textarea id="bulk" placeholder="Dán danh sách, mỗi dòng một bạn. Copy thẳng từ Excel được: 1 cột Họ tên, hoặc 2 cột Họ và tên đệm | Tên (có cột STT cũng được)"></textarea>
       <div class="row"><button class="btn soft" data-act="addStudents">+ Thêm vào lớp</button><span class="hint">Tên trùng sẽ bỏ qua.</span></div>
       <div class="sub">Danh sách (${c.students.length})</div>
       ${c.students.map(s => `<div class="row"><input type="text" class="f" value="${esc(s.name)}" data-edit="sname" data-sid="${s.id}">
@@ -648,7 +648,13 @@ function runAct(el) {
       if (S.cur === d.cid) S.cur = S.classes[0] && S.classes[0].id; save(); renderSettings(); renderClasses(); return toast('Đã xóa lớp');
     }
     case 'addStudents': {
-      const lines = document.getElementById('bulk').value.split(/\r?\n/).map(s => s.replace(/\t.*/, '').replace(/^\s*\d+[\.\)\s]+/, '').trim()).filter(Boolean);
+      // Dán từ Excel: các cột cách nhau bằng Tab (VD: STT | Họ và tên đệm | Tên) → ghép thành 1 tên
+      const lines = document.getElementById('bulk').value.split(/\r?\n/).map(line => {
+        let cells = line.split('\t').map(x => x.replace(/[`]/g, ' ').replace(/\s+/g, ' ').trim()).filter(Boolean);
+        if (cells.length > 1 && /^\d+$/.test(cells[0])) cells.shift();
+        cells = cells.filter(x => !/\d/.test(x)).slice(0, 2);
+        return cells.join(' ').replace(/^\s*\d+[\.\)\s]+/, '').trim();
+      }).filter(Boolean);
       const have = new Set(c.students.map(s => s.name.toLowerCase())); let n = 0;
       lines.forEach(nm => { if (!have.has(nm.toLowerCase())) { c.students.push({ id: uid(), name: nm, stars: 0, earned: 0 }); have.add(nm.toLowerCase()); n++; } });
       save(); renderSettings(); renderClasses(); return toast(`Đã thêm ${n} học sinh`);
