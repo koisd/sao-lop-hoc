@@ -195,6 +195,17 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 .sc.on b,.sc.on small{color:#fff}
 .kb-note{color:var(--muted);font-size:14px;margin-top:8px}
 
+/* cổng mật khẩu */
+#gate{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
+#gate form{background:var(--panel);border-radius:24px;padding:28px 26px;width:min(400px,100%);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;text-align:center}
+#gate .big{font-size:56px;line-height:1}
+#gate h1{margin:0;font-size:30px}
+#gate input[type=password]{padding:12px 14px;border-radius:12px;border:2px solid var(--line);font-size:20px;text-align:center}
+#gate input[type=password]:focus{outline:none;border-color:var(--brand)}
+#gate button{padding:12px;border-radius:12px;background:var(--brand);color:#fff;font-weight:800;font-size:20px}
+#gate button:disabled{opacity:.6}
+#gate label{color:var(--muted);font-size:15px;display:flex;gap:6px;justify-content:center;align-items:center}
+#gate .err{color:var(--minus);font-weight:700;min-height:22px}
 /* toast */
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:14px;font-weight:700;transition:transform .25s;z-index:99;max-width:90vw;text-align:center}
 #toast.show{transform:translateX(-50%) translateY(0)}
@@ -219,6 +230,13 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 </main>
 <div id="modal"></div>
 <div id="toast"></div>
+<div id="gate"><form id="gateForm" autocomplete="off">
+  <div class="big">⭐</div><h1>Sao Lớp Học</h1>
+  <input type="password" id="gatePw" placeholder="Mật khẩu" aria-label="Mật khẩu" autofocus>
+  <label><input type="checkbox" id="gateRemember"> Nhớ mật khẩu trên máy này</label>
+  <button type="submit" id="gateBtn">Vào</button>
+  <div class="err" id="gateErr"></div>
+</form></div>
 
 <script>
 /* ================== Dữ liệu ================== */
@@ -231,10 +249,8 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const fmtN = n => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
 
 function defaults() {
-  const names = ['Nguyễn Văn An','Trần Bảo Bình','Lê Minh Chi','Phạm Tiến Dũng','Hoàng Gia Hân','Võ Minh Khang','Đặng Khánh Linh','Bùi Đức Minh','Ngô Bảo Ngọc','Đỗ Hoàng Phúc'];
-  const cid = uid();
   return {
-    classes: [{ id: cid, name: 'Lớp mẫu', students: names.map(n => ({ id: uid(), name: n, stars: 0, earned: 0 })) }],
+    classes: [],
     log: [],
     reasons: {
       plus: [
@@ -262,7 +278,7 @@ function defaults() {
       { id: uid(), name: 'LEGO', ic: '🧱', cost: 200 },
     ],
     lock: { mode: 'key', key: 'a' },
-    cur: cid,
+    cur: null,
     sort: 'name',
   };
 }
@@ -563,9 +579,8 @@ function renderSettings() {
       <p class="hint">Mọi thao tác cộng / trừ / đổi quà / hoàn tác / vào Cài đặt đều phải mở khóa.</p></div>
 
     <div class="box"><h3>🔑 Danh sách lớp trên web</h3>
-      <p class="hint">${S.dsUpdated ? `✔ Máy này đã mở danh sách. Bản danh sách mới nhất: <b>${new Date(S.dsUpdated).toLocaleString('vi-VN')}</b>. Mỗi lần mở web sẽ tự cập nhật, số sao giữ nguyên.` : 'Gõ mật khẩu 1 lần, sau đó mỗi lần mở web các lớp sẽ tự cập nhật.'}</p>
-      ${localStorage.getItem(PW_KEY) ? `<div class="row" style="flex-wrap:wrap"><button class="btn soft" data-act="dsReload">🔄 Tải lại danh sách</button><button class="btn soft" data-act="dsForget">Quên mật khẩu trên máy này</button></div>`
-        : `<div class="row"><input type="password" id="dsPw" class="f" placeholder="Mật khẩu danh sách"><button class="btn soft" data-act="dsOpen">Mở</button></div>`}
+      <p class="hint">${S.dsUpdated ? `Bản danh sách mới nhất: <b>${new Date(S.dsUpdated).toLocaleString('vi-VN')}</b>. Mỗi lần mở web tự cập nhật, số sao giữ nguyên.` : ''}</p>
+      <div class="row" style="flex-wrap:wrap"><button class="btn soft" data-act="dsReload">🔄 Tải lại danh sách</button><button class="btn soft" data-act="dsForget">🔒 Khóa lại (phải nhập lại mật khẩu)</button></div>
     </div>
 
     <div class="box"><h3>💾 Dữ liệu</h3>
@@ -674,9 +689,8 @@ function runAct(el) {
     case 'delReason': (d.sign === '1' ? S.reasons.plus : S.reasons.minus).splice(+d.i, 1); save(); return renderSettings();
     case 'addReward': S.rewards.push({ id: uid(), name: 'Quà mới', ic: '🎁', cost: 30 }); save(); return renderSettings();
     case 'delReward': S.rewards.splice(+d.i, 1); save(); return renderSettings();
-    case 'dsOpen': { const pw = document.getElementById('dsPw').value; if (!pw) return toast('Nhập mật khẩu'); return syncDS(pw, true); }
-    case 'dsReload': return syncDS(localStorage.getItem(PW_KEY), true);
-    case 'dsForget': try { localStorage.removeItem(PW_KEY); } catch (e) {} renderSettings(); return toast('Đã quên mật khẩu trên máy này');
+    case 'dsReload': return syncDS(getPw(), true);
+    case 'dsForget': forgetPw(); closeModal(); return showGate();
     case 'export': return exportData();
     case 'import': return document.getElementById('impFile').click();
     case 'wipe': if (!confirmInline(el, 'Xóa SẠCH mọi lớp, học sinh, sao?')) return; S = defaults(); S.classes = []; S.cur = null; save(); renderAll(); return toast('Đã xóa hết');
@@ -956,18 +970,21 @@ async function decryptDS(enc, pw) {
   const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64d(enc.iv) }, key, b64d(enc.data));
   return JSON.parse(new TextDecoder().decode(pt));
 }
+function getPw() { try { return sessionStorage.getItem(PW_KEY) || localStorage.getItem(PW_KEY); } catch (e) { return null; } }
+function forgetPw() { try { sessionStorage.removeItem(PW_KEY); localStorage.removeItem(PW_KEY); } catch (e) {} }
+/* trả về: 'ok' | 'net' (không tải được) | 'pw' (sai mật khẩu) */
 async function syncDS(pw, manual) {
   let enc;
   try { const r = await fetch('ds.enc.json?t=' + Date.now(), { cache: 'no-store' }); if (!r.ok) throw 0; enc = await r.json(); }
-  catch (e) { if (manual) toast('Không tải được danh sách — kiểm tra mạng'); return; }
+  catch (e) { if (manual) toast('Không tải được danh sách — kiểm tra mạng'); return 'net'; }
   let ds;
   try { ds = await decryptDS(enc, pw); }
-  catch (e) { if (manual) toast('❌ Sai mật khẩu'); return; }
-  try { localStorage.setItem(PW_KEY, pw); } catch (e) {}
+  catch (e) { if (manual) toast('❌ Sai mật khẩu'); return 'pw'; }
   const changed = mergeDS(ds) || S.dsUpdated !== ds.updated;
   S.dsUpdated = ds.updated; save();
   if (changed || manual) renderAll();
   if (manual) toast(`✔ Đã cập nhật ${ds.classes.length} lớp`);
+  return 'ok';
 }
 /* Gộp danh sách từ web vào dữ liệu trên máy: thêm / đổi tên / bớt học sinh, giữ nguyên số sao */
 function mergeDS(ds) {
@@ -996,11 +1013,27 @@ function mergeDS(ds) {
   if (!S.classes.find(c => c.id === S.cur)) S.cur = S.classes[0] && S.classes[0].id;
   return changed;
 }
-document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'dsPw') document.querySelector('[data-act=dsOpen]').click(); });
 
 /* ================== Khởi động ================== */
 renderAll();
-{ let pw = null; try { pw = localStorage.getItem(PW_KEY); } catch (e) {} if (pw) syncDS(pw, false); }
+function showGate() {
+  const g = document.getElementById('gate'); g.classList.remove('hidden');
+  document.getElementById('gatePw').value = ''; document.getElementById('gateErr').textContent = '';
+  setTimeout(() => document.getElementById('gatePw').focus(), 50);
+}
+document.getElementById('gateForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pw = document.getElementById('gatePw').value; const err = document.getElementById('gateErr'); const btn = document.getElementById('gateBtn');
+  if (!pw) { err.textContent = 'Nhập mật khẩu'; return; }
+  btn.disabled = true; btn.textContent = 'Đang mở…'; err.textContent = '';
+  const res = await syncDS(pw, false);
+  btn.disabled = false; btn.textContent = 'Vào';
+  if (res === 'pw') { err.textContent = 'Sai mật khẩu'; document.getElementById('gatePw').select(); return; }
+  if (res === 'net') { err.textContent = 'Không tải được — kiểm tra mạng rồi thử lại'; return; }
+  try { (document.getElementById('gateRemember').checked ? localStorage : sessionStorage).setItem(PW_KEY, pw); } catch (e) {}
+  document.getElementById('gate').classList.add('hidden'); renderAll();
+});
+{ const pw = getPw(); if (pw) { document.getElementById('gate').classList.add('hidden'); syncDS(pw, false).then(r => { if (r === 'pw') { forgetPw(); showGate(); } }); } else showGate(); }
 </script>
 </body>
 </html>
