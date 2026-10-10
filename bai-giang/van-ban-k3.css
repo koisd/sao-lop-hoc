@@ -1,0 +1,15 @@
+/* ===== Văn bản & trình chiếu (Khối 3) ===== */
+.vb-doc{background:#e9ecf1;border-radius:14px;padding:10px;box-shadow:var(--shadow)}
+.vb-tool{display:flex;gap:6px;flex-wrap:wrap;background:#fff;border-radius:10px;padding:6px;margin-bottom:10px}
+.vb-tool button{padding:6px 14px;border-radius:8px;background:#f1f3f6;font-weight:800;font-size:18px}
+.vb-tool button:hover{background:var(--brand-soft)}
+.vb-page{background:#fff;min-height:240px;padding:24px 30px;font:20px "Times New Roman",serif;outline:none;box-shadow:0 2px 8px rgba(0,0,0,.12);line-height:1.5}
+.vb-page p{margin:0 0 10px;border-left:4px solid transparent;padding-left:6px}
+.vb-page p:hover{border-left-color:#dfe6ff}
+.vb-keys{display:flex;flex-direction:column;gap:8px}
+.vb-keys div{background:var(--panel);border-radius:14px;box-shadow:var(--shadow);padding:8px 14px;transition:background .15s,transform .15s}
+.vb-keys b{font-size:20px;display:block}
+.vb-keys small{font-size:15px;color:var(--muted);font-weight:600}
+.vb-keys div.on{background:var(--press);color:#fff;transform:scale(1.03)}
+.vb-keys div.on small{color:#e3eeff}
+.vb-q{display:flex;flex-direction:column;gap:12px}

@@ -61,8 +61,8 @@
     <div class="ec-bot">${bottom}<span class="ec-tools"><span class="ec-a">A</span>${s('attach', 20)}<span class="ec-link">🔗</span>${s('smile', 20)}${s('image', 20)}${s('lockS', 20)}${s('edit', 20)}${s('more', 20)}</span><span class="ec-del">${s('trash', 20)}</span></div></div>`;
 
   BG.add({
-    id: 'email', icon: '📧', khoi: [4, 5], title: 'Email', desc: 'Các phần của một email, thử viết email đúng cách, nhận diện email lừa đảo.',
-    topics: ['LV2 GM1 · CĐ 25: Liên kết lạ trong email', 'LV3 GM1 · CĐ 19: Chủ đề của email', 'LV3 GM2 · CĐ 24: Chữ ký email', 'LV3 GM2 · CĐ 29: Tin nhắn không an toàn', 'LV3 GM1 · CĐ 16: Giao tiếp kỹ thuật số'],
+    id: 'email', icon: '📧', khoi: [3, 4, 5], title: 'Email', desc: 'Các phần của một email, thử viết email đúng cách, nhận diện email lừa đảo.',
+    topics: ['LV1 GM1 · CĐ 17: Các phần của email', 'LV1 GM2 · CĐ 21: Lời chào, người nhận, chủ đề, nội dung', 'LV2 GM1 · CĐ 25: Liên kết lạ trong email', 'LV3 GM1 · CĐ 19: Chủ đề của email', 'LV3 GM2 · CĐ 24: Chữ ký email', 'LV3 GM2 · CĐ 29: Tin nhắn không an toàn', 'LV3 GM1 · CĐ 16: Giao tiếp kỹ thuật số'],
     tip: '<b>Các phần của email</b>: bấm số cam trên cửa sổ soạn thư. <b>Thử viết</b>: cho HS viết email xin nghỉ học gửi cô, bấm <b>Gửi</b> để kiểm tra. <b>Email nào nguy hiểm?</b>: mở từng email, cả lớp đoán An toàn / Nguy hiểm rồi mới bấm; ở email ngân hàng, cho HS <b>rê chuột lên đường link</b> để thấy địa chỉ thật hiện ở <b>góc dưới bên trái</b> trình duyệt.',
     render(root) {
       let mode = 'parts';

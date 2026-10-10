@@ -1,0 +1,43 @@
+/* ===== Máy tính & ứng dụng (Khối 3) ===== */
+.mk-row{display:flex;flex-wrap:wrap;gap:10px}
+.mk-dev{flex:1;min-width:120px;background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.mk-dev span{font-size:46px;line-height:1.1}
+.mk-dev b{font-size:16px}
+.mk-dev small{font-weight:800;font-size:14px}
+
+.dk{position:relative;border-radius:14px;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.2);user-select:none;font-family:"Segoe UI",Roboto,Arial,sans-serif}
+.dk-desk{position:relative;height:380px;background:linear-gradient(135deg,#0b5cad 0%,#2f8be0 45%,#7cc4ff 100%);padding:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.dk-icon{width:92px;padding:6px 4px;border-radius:6px;color:#fff;text-align:center;font-size:14px;text-shadow:0 1px 2px #0008;cursor:default;border:1px solid transparent}
+.dk-icon span{display:block;font-size:40px;line-height:1.1;text-shadow:none}
+.dk-icon:hover{background:#ffffff26}
+.dk-icon.sel{background:#cce8ff55;border-color:#cce8ffaa}
+.dk-wins{position:absolute;inset:0;pointer-events:none}
+.dk-win{position:absolute;width:52%;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35);pointer-events:auto;overflow:hidden;animation:dkPop .18s}
+@keyframes dkPop{from{transform:scale(.85);opacity:0}}
+.dk-tt{display:flex;align-items:center;background:#f3f3f3;font-size:14px;height:34px}
+.dk-tt span{flex:1;padding-left:10px}
+.dk-tt i{font-style:normal;width:44px;text-align:center;line-height:34px;color:#333}
+.dk-tt i.x{cursor:pointer}
+.dk-tt i.x:hover{background:#e81123;color:#fff}
+.dk-wb{height:150px;padding:10px}
+.dk-paint{height:100%;display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.dk-paint span{width:28px;height:28px;border-radius:50%}
+.dk-paint b{width:100%;font-size:44px;text-align:center}
+.dk-note{width:100%;height:100%;border:0;font:16px "Segoe UI",sans-serif;resize:none;min-height:0;padding:0}
+.dk-calc{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:16px}
+.dk-calc div{grid-column:1/-1;text-align:right;font-size:22px;font-weight:600}
+.dk-calc i{font-style:normal;background:#f0f0f0;border-radius:4px;text-align:center;padding:2px 0}
+.dk-bar{display:flex;align-items:center;gap:4px;height:48px;background:#1f2a3a;padding:0 10px}
+.dk-start,.dk-tb{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:24px;color:#7cc4ff;cursor:pointer;position:relative}
+.dk-tb:hover,.dk-start:hover{background:#ffffff1f}
+.dk-tb.on::after{content:"";position:absolute;bottom:2px;width:16px;height:3px;border-radius:2px;background:#7cc4ff}
+.dk-clock{color:#fff;font-size:13px}
+.dk-menu{position:absolute;display:none;flex-direction:column;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.35);padding:6px;min-width:200px;z-index:5}
+.dk-menu.on{display:flex}
+.dk-menu b{font-size:14px;padding:4px 8px;color:#555}
+.dk-menu button{text-align:left;padding:8px 10px;border-radius:6px;font:15px "Segoe UI",sans-serif;background:none}
+.dk-menu button:hover{background:#e8f1fb}
+.dk-off{position:absolute;inset:0;background:#000;color:#ccc;display:none;align-items:center;justify-content:center;text-align:center;font-size:22px;font-weight:700;cursor:pointer;z-index:4;flex-direction:column}
+.dk-off small{font-size:16px;color:#ffcf6b}
+.dk.dark .dk-off{display:flex}
+.dk-quiz{display:flex;flex-direction:column;gap:12px}

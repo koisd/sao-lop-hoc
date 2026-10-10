@@ -66,6 +66,114 @@
         <div class="cw-status"></div>
       </div>`;
     },
+    /* Bài có nhiều chế độ: modes = [{id, label, run(el)}] — vẽ thanh chế độ + thân, bấm để đổi */
+    modes(root, modes) {
+      let cur = modes[0].id;
+      const draw = () => {
+        root.innerHTML = BG.modeBar(modes, cur) + '<div class="bg-body bg-mbody"></div>';
+        modes.find(m => m.id === cur).run(root.querySelector('.bg-mbody'));
+      };
+      root.addEventListener('click', ev => { const m = ev.target.closest('.bg-modes [data-mode]'); if (m && m.parentNode.parentNode === root) { cur = m.dataset.mode; draw(); } });
+      draw();
+    },
+    /* Trò xếp nhóm: o = {intro (HTML), bins: [{id, label}], items: [{ic, name, bin, why}]} — bấm thẻ rồi bấm ô, hoặc kéo thả */
+    sortGame(el, o) {
+      const N = o.items.length; let pool, placed, sel, wrong;
+      const start = () => { pool = BG.shuffle(o.items.map((_, i) => i)); placed = {}; sel = null; wrong = 0; };
+      start();
+      el.innerHTML = `<div class="bg-explain sg-ex">${o.intro}</div><div class="sg-pool"></div>
+        <div class="sg-bins" style="grid-template-columns:repeat(${o.bins.length},1fr)">${o.bins.map(b => `<div class="sg-bin" data-bin="${b.id}"><h3>${b.label}</h3><div class="sg-in"></div></div>`).join('')}</div>
+        <div class="bg-row"><span class="sg-score"></span><span style="flex:1"></span><button class="bgbtn soft sg-reset">↺ Chơi lại</button></div>`;
+      const $ = q => el.querySelector(q), lab = id => o.bins.find(b => b.id === id).label;
+      const card = (i, cls = '') => { const it = o.items[i]; return `<div class="sg-card ${cls}" draggable="true" data-i="${i}">${it.ic ? `<span>${it.ic}</span>` : ''}${esc(it.name)}</div>`; };
+      const paint = () => {
+        $('.sg-pool').innerHTML = pool.length ? pool.map(i => card(i, sel === i ? 'sel' : '')).join('') : '<div class="sg-done">🎉 Xếp xong hết rồi!</div>';
+        el.querySelectorAll('.sg-bin').forEach(b => { b.querySelector('.sg-in').innerHTML = Object.keys(placed).filter(i => placed[i] === b.dataset.bin).map(i => card(+i, 'ok')).join(''); b.classList.toggle('ready', sel !== null); });
+        $('.sg-score').innerHTML = `Đúng <b>${Object.keys(placed).length}/${N}</b> · Sai <b>${wrong}</b> lần`;
+      };
+      const drop = (i, bin) => {
+        const it = o.items[i], b = el.querySelector(`.sg-bin[data-bin="${bin}"]`);
+        if (it.bin === bin) { placed[i] = bin; pool = pool.filter(x => x !== i); sel = null; $('.sg-ex').innerHTML = `<span class="big bg-ok">✔ Đúng! ${it.ic || ''} ${esc(it.name)} → ${lab(bin)}</span>${it.why || ''}`; }
+        else { wrong++; b.classList.remove('bg-shake'); void b.offsetWidth; b.classList.add('bg-shake'); $('.sg-ex').innerHTML = `<span class="big bg-bad">✘ Chưa đúng, thử ô khác nhé!</span>${esc(it.name)} không thuộc “${lab(bin)}”.`; }
+        paint();
+      };
+      el.addEventListener('click', ev => {
+        const c = ev.target.closest('.sg-pool .sg-card'), b = ev.target.closest('.sg-bin');
+        if (c) { sel = sel === +c.dataset.i ? null : +c.dataset.i; return paint(); }
+        if (b && sel !== null) return drop(sel, b.dataset.bin);
+        if (ev.target.closest('.sg-reset')) { start(); $('.sg-ex').innerHTML = o.intro; paint(); }
+      });
+      el.addEventListener('dragstart', ev => { const c = ev.target.closest('.sg-pool .sg-card'); if (c) ev.dataTransfer.setData('text', c.dataset.i); });
+      el.addEventListener('dragover', ev => { if (ev.target.closest('.sg-bin')) ev.preventDefault(); });
+      el.addEventListener('drop', ev => { const b = ev.target.closest('.sg-bin'), i = ev.dataTransfer.getData('text'); if (b && i !== '') { ev.preventDefault(); drop(+i, b.dataset.bin); } });
+      paint();
+    },
+    /* Bảng Có / Không giống đề thi: o = {intro, top (HTML hiện phía trên, tùy chọn), rows: [{text, ic, yes, why}]} */
+    yesNo(el, o) {
+      el.innerHTML = `${o.intro ? `<div class="bg-explain">${o.intro}</div>` : ''}${o.top || ''}
+        <div class="yn"><div class="yn-h"><span></span><b>Có (Yes)</b><b>Không (No)</b></div>
+        ${o.rows.map((r, i) => `<div class="yn-r" data-i="${i}"><div class="yn-t">${r.ic ? `<span class="yn-ic">${r.ic}</span>` : ''}<div>${esc(r.text)}<small class="yn-why"></small></div></div>
+          <button data-a="1">○</button><button data-a="0">○</button></div>`).join('')}</div>
+        <div class="bg-row"><span class="yn-score"></span><span style="flex:1"></span><button class="bgbtn soft yn-all">👀 Xem đáp án</button><button class="bgbtn soft yn-reset">↺ Làm lại</button></div>`;
+      const score = () => { const d = el.querySelectorAll('.yn-r.done').length, ok = el.querySelectorAll('.yn-r.right').length; el.querySelector('.yn-score').innerHTML = `Đã chọn <b>${d}/${o.rows.length}</b> · Đúng <b>${ok}</b>`; };
+      const show = (row, pick) => {
+        const r = o.rows[+row.dataset.i], ans = r.yes ? '1' : '0';
+        row.classList.add('done'); row.classList.toggle('right', pick === ans); row.classList.toggle('wrong', pick !== ans);
+        row.querySelectorAll('button').forEach(b => { b.className = b.dataset.a === ans ? 'ans' : b.dataset.a === pick ? 'bad' : ''; b.textContent = b.dataset.a === ans ? '●' : b.dataset.a === pick ? '✘' : '○'; });
+        row.querySelector('.yn-why').innerHTML = (pick === ans ? '✔ ' : '✘ Đáp án: ' + (r.yes ? 'Có. ' : 'Không. ')) + (r.why || '');
+      };
+      el.onclick = ev => {
+        const b = ev.target.closest('.yn-r button'); if (b) { show(b.closest('.yn-r'), b.dataset.a); return score(); }
+        if (ev.target.closest('.yn-all')) { el.querySelectorAll('.yn-r:not(.done)').forEach(r => show(r, o.rows[+r.dataset.i].yes ? '1' : '0')); return score(); }
+        if (ev.target.closest('.yn-reset')) BG.yesNo(el, o);
+      };
+      score();
+    },
+    /* Tình huống chọn 1 đáp án: o = {rounds: [{ic, q, opts: [{t, ok, why}]}]} */
+    choose(el, o) {
+      let i = 0;
+      const draw = () => {
+        const r = o.rounds[i];
+        el.innerHTML = `<div class="ch-dots">${o.rounds.map((_, j) => `<button data-j="${j}" class="${j === i ? 'on' : ''}">${j + 1}</button>`).join('')}</div>
+          <div class="ch-q">${r.ic ? `<span>${r.ic}</span>` : ''}<div>${r.q}</div></div>
+          <div class="ch-opts">${BG.shuffle(r.opts.map((x, k) => k)).map(k => `<button class="ch-o" data-k="${k}">${esc(r.opts[k].t)}<small></small></button>`).join('')}</div>
+          <div class="bg-row"><button class="bgbtn soft ch-prev" ${i ? '' : 'disabled'}>← Câu trước</button><span style="flex:1"></span><button class="bgbtn ch-next" ${i < o.rounds.length - 1 ? '' : 'disabled'}>Câu tiếp →</button></div>`;
+      };
+      el.addEventListener('click', ev => {
+        const b = ev.target.closest('.ch-o');
+        if (b) { const x = o.rounds[i].opts[+b.dataset.k]; b.classList.add(x.ok ? 'ok' : 'no'); b.querySelector('small').innerHTML = (x.ok ? '✔ Đúng rồi! ' : '✘ ') + (x.why || ''); return; }
+        const d = ev.target.closest('.ch-dots button');
+        if (d) { i = +d.dataset.j; return draw(); }
+        if (ev.target.closest('.ch-prev') && i > 0) { i--; draw(); }
+        if (ev.target.closest('.ch-next') && i < o.rounds.length - 1) { i++; draw(); }
+      });
+      draw();
+    },
+    /* Nối từ với nghĩa: sets = [{title, pairs: [[từ, nghĩa]]}] — bấm 1 từ bên trái rồi bấm nghĩa bên phải */
+    match(el, sets) {
+      let si = 0, sel = null, done, order, wrong;
+      const COL = ['#6c5ce7', '#00b894', '#e17055', '#0984e3', '#e84393', '#fdcb6e'];
+      const start = () => { done = {}; sel = null; wrong = 0; order = BG.shuffle(sets[si].pairs.map((_, k) => k)); };
+      const draw = () => {
+        const P = sets[si].pairs, all = Object.keys(done).length === P.length;
+        el.innerHTML = `${sets.length > 1 ? `<div class="mt-sets">${sets.map((s, k) => `<button data-s="${k}" class="bgchip ${k === si ? 'on' : ''}">${esc(s.title)}</button>`).join('')}</div>` : ''}
+          <div class="bg-explain">${all ? `<span class="big bg-ok">🎉 Nối đúng hết rồi!</span>Sai ${wrong} lần.` : 'Bấm 1 <b>từ</b> bên trái, rồi bấm <b>nghĩa</b> đúng của nó bên phải.'}</div>
+          <div class="mt"><div class="mt-col">${P.map(([t], k) => `<button class="mt-t ${sel === k ? 'sel' : ''} ${done[k] !== undefined ? 'ok' : ''}" data-k="${k}" ${done[k] !== undefined ? `style="--c:${COL[k % 6]}"` : ''}>${esc(t)}</button>`).join('')}</div>
+          <div class="mt-col">${order.map(k => `<button class="mt-d ${done[k] !== undefined ? 'ok' : ''}" data-k="${k}" ${done[k] !== undefined ? `style="--c:${COL[k % 6]}"` : ''}>${esc(P[k][1])}</button>`).join('')}</div></div>
+          <div class="bg-row"><span style="flex:1"></span><button class="bgbtn soft mt-reset">↺ Làm lại</button></div>`;
+      };
+      el.addEventListener('click', ev => {
+        const s = ev.target.closest('.mt-sets [data-s]'); if (s) { si = +s.dataset.s; start(); return draw(); }
+        const t = ev.target.closest('.mt-t'); if (t && !t.classList.contains('ok')) { sel = +t.dataset.k; return draw(); }
+        const d = ev.target.closest('.mt-d');
+        if (d && sel !== null && !d.classList.contains('ok')) {
+          if (+d.dataset.k === sel) { done[sel] = 1; sel = null; return draw(); }
+          wrong++; d.classList.remove('bg-shake'); void d.offsetWidth; d.classList.add('bg-shake');
+        }
+        if (ev.target.closest('.mt-reset')) { start(); draw(); }
+      });
+      start(); draw();
+    },
     /* rê chuột lên phần tử có data-href → hiện địa chỉ ở góc dưới trái, như trình duyệt thật */
     statusHover(win) {
       win.addEventListener('mouseover', ev => {

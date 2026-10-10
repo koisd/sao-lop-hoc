@@ -1,0 +1,32 @@
+/* ===== Internet & trang web (Khối 3) ===== */
+.wk-net{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:700px){.wk-net{grid-template-columns:1fr}}
+.wk-net>div{background:var(--plus-soft);border-radius:16px;padding:10px 14px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.wk-net>div.no{background:var(--minus-soft)}
+.wk-net span{font-size:46px;line-height:1.1}
+.wk-net b{font-size:19px}
+.wk-net small{font-size:14px;color:var(--muted);font-weight:600}
+.wk-page{padding:22px 28px;min-height:120px}
+.wk-page h3{margin:0 0 6px;font-size:24px}
+/* tô sáng phần đang chọn trên khung trình duyệt */
+.wk-br .cw{transition:box-shadow .2s}
+.wk-br[data-hl=tab] .cw-tab,.wk-br[data-hl=tab] .cw-new{outline:4px solid #ff9f1c;outline-offset:-2px;border-radius:8px}
+.wk-br[data-hl=addr] .cw-omni{outline:4px solid #ff9f1c}
+.wk-br[data-hl=win] .cw{box-shadow:0 0 0 6px #ff9f1c}
+.wk-br[data-hl=win] .cw-win{background:#ffe2b8}
+.wk-q{display:flex;flex-direction:column;gap:12px}
+
+.wk-art{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:0 0 16px;overflow:hidden;font-family:"Segoe UI",Roboto,Arial,sans-serif}
+.wk-art p{margin:0 22px;font-size:18px;color:#333}
+.wk-ban{background:linear-gradient(90deg,#ff7675,#fdcb6e,#55efc4,#74b9ff,#a29bfe);color:#fff;font-weight:800;font-size:22px;text-align:center;padding:14px;text-shadow:0 1px 3px #0005}
+.wk-art h2{margin:14px 22px 6px;font-size:28px}
+.wk-meta{display:flex;gap:18px;flex-wrap:wrap;margin:0 22px 10px;color:#555;font-size:16px}
+.wk-p{cursor:pointer;border-radius:8px;outline:3px dashed transparent;transition:outline-color .15s}
+.wk-p:hover{outline-color:#b9a8ff}
+.wk-p.on{outline:4px solid #ff9f1c}
+.wk-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:700px){.wk-sum{grid-template-columns:1fr 1fr}}
+.wk-sum>div{background:var(--panel);border-radius:14px;box-shadow:var(--shadow);padding:10px;text-align:center;font-weight:800;font-size:17px;display:flex;flex-direction:column}
+.wk-sum b{font-size:26px;color:var(--muted)}
+.wk-sum .ok{background:var(--plus-soft)} .wk-sum .ok b{color:var(--plus)}
+.wk-sum .no{background:var(--minus-soft)} .wk-sum .no b{color:var(--minus)}

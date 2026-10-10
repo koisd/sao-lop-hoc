@@ -1,0 +1,5 @@
+/* ===== Giữ gìn thiết bị & sức khỏe (Khối 3) ===== */
+.sk-tips{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media (max-width:800px){.sk-tips{grid-template-columns:1fr 1fr}}
+.sk-tips div{background:var(--plus-soft);border-radius:16px;padding:10px;text-align:center;font-weight:800;font-size:17px;line-height:1.25}
+.sk-tips span{display:block;font-size:44px;line-height:1.15}

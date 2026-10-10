@@ -116,8 +116,8 @@
       <p class="code">DNS_PROBE_FINISHED_NXDOMAIN</p><button class="tdv-errbtn" data-b="reload">Tải lại</button></div>`;
 
   BG.add({
-    id: 'trinh-duyet', icon: '🌐', khoi: [4], title: 'Trình duyệt web', desc: 'Thanh địa chỉ, quay lại / tiến tới, tải lại trang, dấu trang.',
-    topics: ['LV2 GM1 · CĐ 8: Tải lại trang web', 'LV2 GM1 · CĐ 9: Dấu trang', 'LV2 GM1 · CĐ 11: URL', 'LV2 GM2 · CĐ 4: Trang web tải một nửa', 'LV2 GM2 · CĐ 5: URL', 'LV2 GM2 · CĐ 30: Dấu trang, tải lại, điều hướng'],
+    id: 'trinh-duyet', icon: '🌐', khoi: [3, 4], title: 'Trình duyệt web', desc: 'Thanh địa chỉ, quay lại / tiến tới, tải lại trang, dấu trang.',
+    topics: ['LV1 GM1 · CĐ 8: URL là gì?', 'LV1 GM1 · CĐ 9: Dấu trang (Bookmark)', 'LV1 GM2 · CĐ 11: URL ở thanh địa chỉ', 'LV1 GM2 · CĐ 13: Dấu trang / Mục yêu thích', 'LV2 GM1 · CĐ 8: Tải lại trang web', 'LV2 GM1 · CĐ 9: Dấu trang', 'LV2 GM1 · CĐ 11: URL', 'LV2 GM2 · CĐ 4: Trang web tải một nửa', 'LV2 GM2 · CĐ 5: URL', 'LV2 GM2 · CĐ 30: Dấu trang, tải lại, điều hướng'],
     tip: 'Cho HS lên bấm thử: (1) gõ <b>www.vuonthu.vn</b> vào thanh địa chỉ rồi Enter. (2) Gõ sai 1 chữ (vd <b>www.vuonthu.com</b>) để thấy trang báo lỗi. (3) Bật <b>🐌 Mạng chậm</b> → mở trang khác → trang chỉ hiện một nửa, thiếu hình → hỏi “giờ bấm nút nào?” → <b>Tải lại</b>. (4) Bấm ☆ trong thanh địa chỉ để lưu dấu trang, đi trang khác rồi bấm dấu trang để quay về. (5) Đi qua 3 trang rồi bấm ◀ ▶ để thấy lịch sử. (6) Rê chuột lên một liên kết → góc dưới trái hiện địa chỉ.',
     render(root) {
       const st = { hist: [], idx: -1, bm: ['www.hocvui.vn'], slow: false, loading: false, half: false, timer: null };
