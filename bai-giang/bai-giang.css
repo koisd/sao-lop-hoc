@@ -141,3 +141,7 @@
 .mt-t:hover,.mt-d:hover{border-color:var(--brand)}
 .mt-t.sel{border-color:var(--hold);background:#fff4e5}
 .mt-t.ok,.mt-d.ok{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,#fff);cursor:default}
+
+/* Hiện tất cả: thẻ gọn, chỉ biểu tượng + tên */
+.ls-all{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.ls-all .bg-card{flex-direction:row;align-items:center;gap:12px}
