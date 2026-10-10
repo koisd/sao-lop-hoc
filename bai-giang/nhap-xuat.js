@@ -16,22 +16,11 @@
     ['🎧🎤', 'Tai nghe có micro', 'both', 'Loa tai nghe phát tiếng RA (xuất), micro thu giọng VÀO (nhập).'],
   ];
   const BIN = { in: '⬅️ Thiết bị NHẬP', out: '➡️ Thiết bị XUẤT', both: '🔄 Cả NHẬP và XUẤT' };
-  const CAM = [['📱', 'Điện thoại', true], ['💻', 'Laptop', true], ['📟', 'Máy tính bảng', true], ['📷', 'Webcam', true], ['📹', 'Camera an ninh', true], ['⌚', 'Đồng hồ thông minh có camera', true],
-    ['🖨️', 'Máy in', false], ['🔊', 'Loa', false], ['🖱️', 'Chuột', false], ['⌨️', 'Bàn phím', false]];
-
   BG.add({
-    id: 'nhap-xuat', icon: '🖱️', khoi: [4], title: 'Thiết bị nhập – xuất', desc: 'Trò chơi xếp thiết bị vào đúng nhóm Nhập / Xuất / Cả hai. Thiết bị nào có camera?',
-    topics: ['LV2 GM1 · CĐ 2: Thiết bị nhập', 'LV2 GM1 · CĐ 27: Thiết bị nhập và xuất', 'LV2 GM1 · CĐ 28: Thiết bị có camera', 'LV2 GM2 · CĐ 22: Thiết bị có camera', 'LV2 GM2 · CĐ 28: Thiết bị đầu vào'],
+    id: 'nhap-xuat', icon: '🖱️', khoi: [4], title: 'Thiết bị nhập – xuất', desc: 'Trò chơi xếp thiết bị vào đúng nhóm Nhập / Xuất / Cả hai.',
+    topics: ['LV2 GM1 · CĐ 2: Thiết bị nhập', 'LV2 GM1 · CĐ 27: Thiết bị nhập và xuất', 'LV2 GM2 · CĐ 28: Thiết bị đầu vào'],
     tip: 'Mẹo nhớ: <b>NHẬP = người → máy</b> (đưa thông tin VÀO), <b>XUẤT = máy → người</b> (máy đưa thông tin RA). Gọi từng HS lên: bấm 1 thiết bị rồi bấm vào ô đúng (hoặc kéo thả). Sai thì ô rung và hiện giải thích. Màn hình cảm ứng và tai nghe có micro là “bẫy” hay gặp.',
-    render(root) {
-      let mode = 'sort';
-      const draw = () => {
-        root.innerHTML = BG.modeBar([{ id: 'sort', label: '🧩 Xếp thiết bị' }, { id: 'cam', label: '📷 Thiết bị nào có camera?' }], mode) + '<div id="nxBody" class="bg-body"></div>';
-        (mode === 'sort' ? sortGame : camGame)(root.querySelector('#nxBody'));
-      };
-      root.addEventListener('click', ev => { const m = ev.target.closest('[data-mode]'); if (m) { mode = m.dataset.mode; draw(); } });
-      draw();
-    },
+    render(root) { sortGame(root); },
   });
 
   function sortGame(el) {
@@ -71,14 +60,4 @@
     paint();
   }
 
-  function camGame(el) {
-    el.innerHTML = `<div class="bg-explain" id="nxCamEx"><span class="big">📷 Thiết bị nào có camera?</span>Đoán trước, rồi bấm vào từng thiết bị để xem đáp án.</div>
-      <div class="nx-cam">${BG.shuffle(CAM).map(([ic, n, y]) => `<button class="nx-cc" data-y="${y ? 1 : 0}"><span>${ic}</span>${n}<i></i></button>`).join('')}</div>
-      <div class="bg-panel" style="font-size:18px">⚠️ Thiết bị có camera thì <b>có thể chụp ảnh, quay phim</b>. Muốn chụp hay quay người khác phải <b>xin phép</b>. Không dùng camera thì nên <b>che lại hoặc tắt</b>.</div>`;
-    el.addEventListener('click', ev => {
-      const b = ev.target.closest('.nx-cc'); if (!b) return;
-      b.classList.add(b.dataset.y === '1' ? 'yes' : 'no');
-      b.querySelector('i').textContent = b.dataset.y === '1' ? '✔ Có camera' : '✘ Không có';
-    });
-  }
 })();

@@ -48,18 +48,10 @@
   const LABEL = { proto: 'Giao thức', sub: 'Tên miền phụ', name: 'Tên miền chính', tld: 'Đuôi tên miền', path: 'Đường dẫn', query: 'Tham số' };
 
   BG.add({
-    id: 'url', icon: '🔗', khoi: [4, 5], title: 'Các phần của URL', desc: 'Tách địa chỉ web thành từng phần có màu. https, .gov, trang giả mạo.',
+    id: 'url', icon: '🔗', khoi: [4, 5], title: 'Các phần của URL', desc: 'Tách địa chỉ web thành từng phần có màu: https, tên miền, đuôi .vn .gov, đường dẫn.',
     topics: ['LV2 GM1 · CĐ 11: URL – địa chỉ trang web', 'LV2 GM2 · CĐ 5: URL – địa chỉ web', 'LV3 GM1 · CĐ 3: Đường dẫn trang web (URL)', 'LV3 GM1 · CĐ 12: Tên miền đáng tin (.gov)', 'LV3 GM2 · CĐ 1: Các phần của URL', 'LV3 GM2 · CĐ 16: HTTPS'],
-    tip: 'Phần <b>Mổ xẻ URL</b>: bấm vào từng phần có màu để giải thích; có thể gõ địa chỉ bất kỳ (vd trang của trường). Phần <b>Trang nào đáng tin?</b>: cho cả lớp giơ tay chọn 1 hoặc 2 trước, rồi mới bấm. Nhấn mạnh mẹo: <b>đọc tên miền từ phải sang trái, dừng ở dấu “/” đầu tiên</b>.',
-    render(root) {
-      let mode = 'cut';
-      const draw = () => {
-        root.innerHTML = BG.modeBar([{ id: 'cut', label: '✂️ Mổ xẻ URL' }, { id: 'game', label: '🕵️ Trang nào đáng tin?' }], mode) + '<div id="urlBody" class="bg-body"></div>';
-        (mode === 'cut' ? cut : game)(root.querySelector('#urlBody'));
-      };
-      root.addEventListener('click', ev => { const m = ev.target.closest('[data-mode]'); if (m) { mode = m.dataset.mode; draw(); } });
-      draw();
-    },
+    tip: 'Phần <b>Mổ xẻ URL</b>: bấm vào từng phần có màu để giải thích; có thể gõ địa chỉ bất kỳ (vd trang của trường). Nhấn mạnh mẹo: <b>đọc tên miền từ phải sang trái, dừng ở dấu “/” đầu tiên</b>.',
+    render(root) { cut(root); },
   });
 
   function cut(el) {
@@ -87,32 +79,4 @@
     show(SAMPLES[0]);
   }
 
-  function game(el) {
-    let i = 0, score = 0, done = false;
-    const order = BG.shuffle(PAIRS);
-    el.innerHTML = `<div class="bg-explain" id="ugEx"></div><div class="ug-pair" id="ugPair"></div>
-      <div class="bg-row"><span id="ugScore" class="nx-score"></span><span style="flex:1"></span><button class="bgbtn" id="ugNext">Câu tiếp ▶</button></div>`;
-    const $ = s => el.querySelector(s);
-    function paint() {
-      const q = order[i]; done = false;
-      $('#ugEx').innerHTML = `<span class="big">Câu ${i + 1}/${order.length}: Trang nào đáng tin hơn?</span>Đọc kỹ từng chữ của địa chỉ rồi chọn.`;
-      $('#ugPair').innerHTML = [0, 1].map(j => `<button class="ug-opt" data-j="${j}"><span class="ug-n">${j + 1}</span><span class="ug-u">${(q[j].startsWith('https') ? '🔒 ' : '⚠️ ') + e(q[j])}</span></button>`).join('');
-      $('#ugScore').innerHTML = `Đúng <b>${score}</b> / ${i}`; $('#ugNext').disabled = true;
-    }
-    el.addEventListener('click', ev => {
-      const o = ev.target.closest('.ug-opt');
-      if (o && !done) {
-        done = true; const q = order[i]; const ok = +o.dataset.j === q[2]; if (ok) score++;
-        el.querySelectorAll('.ug-opt').forEach(b => b.classList.add(+b.dataset.j === q[2] ? 'good' : 'bad'));
-        $('#ugEx').innerHTML = `<span class="big ${ok ? 'bg-ok' : 'bg-bad'}">${ok ? '✔ Chính xác!' : '✘ Chưa đúng'} — Trang ${q[2] + 1} đáng tin hơn</span>${q[3]}`;
-        $('#ugScore').innerHTML = `Đúng <b>${score}</b> / ${i + 1}`; $('#ugNext').disabled = false;
-        if (i === order.length - 1) $('#ugNext').textContent = '↺ Chơi lại';
-      }
-      if (ev.target.closest('#ugNext')) {
-        if (i === order.length - 1) { i = 0; score = 0; $('#ugNext').textContent = 'Câu tiếp ▶'; } else i++;
-        paint();
-      }
-    });
-    paint();
-  }
 })();

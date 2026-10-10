@@ -9,29 +9,12 @@
     Escape: ['⎋ Esc', 'Hủy, thoát việc đang làm'],
   };
   BG.add({
-    id: 'van-ban-k3', icon: '📄', khoi: [3], title: 'Văn bản & trình chiếu', desc: 'Khi nào dùng văn bản, khi nào dùng trình chiếu. Soạn thử: phóng to chữ, tô sáng, Enter xuống đoạn mới.',
-    topics: ['LV1 GM1 · CĐ 11: Làm gì với văn bản?', 'LV1 GM1 · CĐ 12: Khi nào dùng trình chiếu', 'LV1 GM1 · CĐ 13: Phím Enter',
-      'LV1 GM2 · CĐ 15: Tài liệu, định dạng, phông chữ', 'LV1 GM2 · CĐ 16: Khi nào dùng văn bản', 'LV1 GM2 · CĐ 17: Các phím đặc biệt'],
-    tip: 'Ở phần <b>Soạn thử</b>, gọi HS lên: bôi đen một chữ rồi bấm <b>A+</b> hoặc <b>🖍️ Tô sáng</b>; bấm <b>Enter</b> để thấy đoạn mới. Bấm phím nào thì bảng bên phải sáng phím đó và giải thích.<br>“Đổi mật khẩu email” KHÔNG phải việc làm trong văn bản.',
+    id: 'van-ban-k3', icon: '📄', khoi: [3], title: 'Văn bản & trình chiếu', desc: 'Soạn thử văn bản: phóng to chữ, tô sáng, Enter xuống đoạn mới, xem mỗi phím làm gì.',
+    topics: ['LV1 GM1 · CĐ 11: Làm gì với văn bản?', 'LV1 GM1 · CĐ 13: Phím Enter',
+      'LV1 GM2 · CĐ 15: Tài liệu, định dạng, phông chữ', 'LV1 GM2 · CĐ 17: Các phím đặc biệt'],
+    tip: 'Ở phần <b>Soạn thử</b>, gọi HS lên: bôi đen một chữ rồi bấm <b>A+</b> hoặc <b>🖍️ Tô sáng</b>; bấm <b>Enter</b> để thấy đoạn mới. Bấm phím nào thì bảng bên phải sáng phím đó và giải thích.',
     render(root) {
       BG.modes(root, [
-        { id: 'chon', label: '🎯 Dùng cái nào?', run: el => BG.choose(el, { rounds: [
-          { ic: '🎤', q: 'Em sắp <b>phát biểu trước cả lớp</b>, muốn chiếu hình cho mọi người xem. Dùng gì?', opts: [
-            { t: '📽️ Bài trình chiếu (presentation)', ok: true, why: 'Chiếu từng trang có hình, chữ to cho người nghe xem.' },
-            { t: '📄 Tài liệu văn bản (document)', ok: false, why: 'Văn bản để đọc, không dùng để chiếu khi nói.' },
-            { t: '📱 Tin nhắn cho cả nhóm', ok: false, why: 'Tin nhắn để báo tin ngắn.' },
-          ] },
-          { ic: '✍️', q: 'Em phải <b>viết một bài văn</b> nộp cho cô. Dùng gì?', opts: [
-            { t: '📄 Tài liệu văn bản (document)', ok: true, why: 'Viết bài dài, nhiều đoạn thì dùng văn bản.' },
-            { t: '📽️ Bài trình chiếu', ok: false, why: 'Trình chiếu dùng khi phát biểu trước người nghe.' },
-            { t: '📱 Tin nhắn cho cả nhóm', ok: false, why: 'Tin nhắn không dùng để nộp bài văn.' },
-          ] },
-          { ic: '📢', q: 'Em muốn <b>báo cho cả nhóm</b>: “Chiều nay 3 giờ họp nhóm nhé!”. Dùng gì?', opts: [
-            { t: '📱 Gửi tin nhắn văn bản cho cả nhóm', ok: true, why: 'Báo tin ngắn, nhanh.' },
-            { t: '📽️ Làm bài trình chiếu', ok: false, why: 'Quá cầu kỳ cho một câu báo tin.' },
-            { t: '📄 Viết tài liệu văn bản', ok: false, why: 'Quá dài dòng.' },
-          ] },
-        ] }) },
         { id: 'soan', label: '✍️ Soạn thử văn bản', run: editor },
       ]);
     },
@@ -42,8 +25,7 @@
       <div class="bg-2col"><div class="vb-doc">
         <div class="vb-tool"><button data-c="bigger" title="Tăng cỡ chữ">A+</button><button data-c="smaller" title="Giảm cỡ chữ">A−</button><button data-c="bold"><b>B</b></button><button data-c="hl">🖍️ Tô sáng</button><button data-c="clear">↺ Viết lại</button></div>
         <div class="vb-page" contenteditable="true" spellcheck="false"></div></div>
-        <div class="vb-keys">${Object.entries(KEYS).map(([k, [n, d]]) => `<div data-k="${k}"><b>${n}</b><small>${d}</small></div>`).join('')}</div></div>
-      <div class="vb-q"></div>`;
+        <div class="vb-keys">${Object.entries(KEYS).map(([k, [n, d]]) => `<div data-k="${k}"><b>${n}</b><small>${d}</small></div>`).join('')}</div></div>`;
     const page = el.querySelector('.vb-page'), say = (h, d) => { el.querySelector('.vb-ex').innerHTML = `<span class="big">${h}</span>${d}`; };
     const START = '<p>Con mèo nhà em</p><p>Nhà em có một con mèo tên là Mướp. Mướp có bộ lông màu vàng.</p>';
     page.innerHTML = START;
@@ -65,13 +47,5 @@
       el.querySelectorAll('.vb-keys div').forEach(d => d.classList.toggle('on', d.dataset.k === ev.key));
       say(k[0], k[1]);
     });
-    BG.yesNo(el.querySelector('.vb-q'), { intro: '<span class="big">Làm thử giống đề thi</span>', rows: [
-      { ic: '🔠', text: 'Với tài liệu văn bản, em có thể tăng kích thước phông chữ (font size)', yes: true },
-      { ic: '🖍️', text: 'Với tài liệu văn bản, em có thể làm nổi bật (highlight) chữ', yes: true },
-      { ic: '🔑', text: 'Với tài liệu văn bản, em có thể thay đổi mật khẩu email', yes: false, why: 'Đổi mật khẩu email làm trong phần cài đặt email.' },
-      { ic: '↵', text: 'Nhấn phím Enter để bắt đầu một đoạn mới', yes: true },
-      { ic: '↹', text: 'Nhấn phím Tab để bắt đầu một đoạn mới', yes: false, why: 'Tab chỉ lùi chữ vào.' },
-      { ic: '⇪', text: 'Nhấn phím Caps Lock để bắt đầu một đoạn mới', yes: false, why: 'Caps Lock để gõ chữ hoa.' },
-    ] });
   }
 })();
