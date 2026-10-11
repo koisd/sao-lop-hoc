@@ -6,21 +6,21 @@
 <title>Sao Lớp Học</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link href="bai-giang/bai-giang.css?v=8" rel="stylesheet">
-<link href="bai-giang/trinh-duyet.css?v=8" rel="stylesheet">
-<link href="bai-giang/tim-kiem.css?v=8" rel="stylesheet">
-<link href="bai-giang/nhap-xuat.css?v=8" rel="stylesheet">
-<link href="bai-giang/trang-chieu.css?v=8" rel="stylesheet">
-<link href="bai-giang/url.css?v=8" rel="stylesheet">
-<link href="bai-giang/internet-ip.css?v=8" rel="stylesheet">
-<link href="bai-giang/bang-tinh.css?v=8" rel="stylesheet">
-<link href="bai-giang/email.css?v=8" rel="stylesheet">
-<link href="bai-giang/rieng-tu.css?v=8" rel="stylesheet">
-<link href="bai-giang/may-tinh-k3.css?v=8" rel="stylesheet">
-<link href="bai-giang/web-k3.css?v=8" rel="stylesheet">
-<link href="bai-giang/an-toan-k3.css?v=8" rel="stylesheet">
-<link href="bai-giang/suc-khoe-k3.css?v=8" rel="stylesheet">
-<link href="bai-giang/van-ban-k3.css?v=8" rel="stylesheet">
+<link href="bai-giang/bai-giang.css?v=9" rel="stylesheet">
+<link href="bai-giang/trinh-duyet.css?v=9" rel="stylesheet">
+<link href="bai-giang/tim-kiem.css?v=9" rel="stylesheet">
+<link href="bai-giang/nhap-xuat.css?v=9" rel="stylesheet">
+<link href="bai-giang/trang-chieu.css?v=9" rel="stylesheet">
+<link href="bai-giang/url.css?v=9" rel="stylesheet">
+<link href="bai-giang/internet-ip.css?v=9" rel="stylesheet">
+<link href="bai-giang/bang-tinh.css?v=9" rel="stylesheet">
+<link href="bai-giang/email.css?v=9" rel="stylesheet">
+<link href="bai-giang/rieng-tu.css?v=9" rel="stylesheet">
+<link href="bai-giang/may-tinh-k3.css?v=9" rel="stylesheet">
+<link href="bai-giang/web-k3.css?v=9" rel="stylesheet">
+<link href="bai-giang/an-toan-k3.css?v=9" rel="stylesheet">
+<link href="bai-giang/suc-khoe-k3.css?v=9" rel="stylesheet">
+<link href="bai-giang/van-ban-k3.css?v=9" rel="stylesheet">
 <style>
 :root{
   --bg:#fff8ec; --panel:#ffffff; --ink:#2b2340; --muted:#7a7090; --line:#eadfcf;
@@ -225,6 +225,45 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 .sc-box summary{cursor:pointer;font-weight:800;color:var(--muted);font-size:16px}
 .screen{cursor:text;user-select:none;touch-action:none}
 
+/* ===== Vòng quay gọi tên + đếm giờ ===== */
+.wh-wrap{max-width:760px;margin:0 auto}
+.tm-wrap{max-width:820px;margin:0 auto;text-align:center}
+.tm-hint{color:var(--muted);font-size:14px;margin-top:10px}
+.wh-box{background:var(--panel);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
+.wh-box h2{margin:0 0 10px;font-size:24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.wh-box h2 select{font-size:16px;padding:4px 8px;border-radius:10px;border:2px solid var(--line);background:#fff}
+.wh-stage{position:relative;width:min(100%,560px);aspect-ratio:1;margin:6px auto}
+.wh-stage canvas{width:100%;height:100%;display:block}
+.wh-pin{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-top:36px solid var(--minus);filter:drop-shadow(0 3px 2px rgba(0,0,0,.25));z-index:2}
+.wh-hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22%;aspect-ratio:1;border-radius:50%;background:#fff;box-shadow:0 0 0 6px var(--brand),0 6px 14px rgba(0,0,0,.2);font-weight:800;font-size:clamp(16px,3vw,26px);color:var(--brand);display:flex;align-items:center;justify-content:center}
+.wh-hub:disabled{color:var(--muted);box-shadow:0 0 0 6px var(--line)}
+.wh-opts{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;color:var(--muted);font-weight:700;margin-top:6px}
+.wh-opts label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.wh-res .who{font-size:clamp(34px,6vw,60px);font-weight:800;color:var(--brand);text-align:center;margin:10px 0 4px;line-height:1.1}
+.wh-res .sub{text-align:center;color:var(--muted);font-weight:700;margin-bottom:14px}
+.wh-res .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.wh-res .btn{font-size:19px;padding:10px 18px}
+.tm-face{position:relative;width:min(100%,420px);aspect-ratio:1;margin:4px auto 12px}
+.tm-face svg{width:100%;height:100%;transform:rotate(-90deg)}
+.tm-face .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(56px,12vw,110px);font-weight:800;font-variant-numeric:tabular-nums}
+.tm-face.warn .num{color:var(--minus)}
+.tm-face.done .num{color:var(--minus);animation:tmBlink .5s steps(2) infinite}
+@keyframes tmBlink{50%{opacity:.2}}
+.tm-pre{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.tm-pre button{padding:6px 12px;border-radius:10px;background:var(--brand-soft);color:var(--brand);font-weight:800}
+.tm-pre button.on{background:var(--brand);color:#fff}
+.tm-ctl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center}
+.tm-ctl .btn{font-size:19px}
+.tm-ctl input{width:70px;padding:6px 8px;border-radius:10px;border:2px solid var(--line);text-align:center}
+#tmBig{position:fixed;inset:0;z-index:150;background:var(--ink);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;cursor:pointer}
+#tmBig .n{font-size:min(38vw,60vh);font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+#tmBig.warn .n{color:#ff8a8d}
+#tmBig.done{animation:tmFlash .6s steps(2) infinite}
+@keyframes tmFlash{50%{background:var(--minus)}}
+#tmBig small{opacity:.6;font-size:20px}#tmChip{background:var(--gold-soft);color:#a86b00;padding:4px 12px;border-radius:12px;font-weight:800;font-variant-numeric:tabular-nums}
+#tmChip.warn{background:var(--minus-soft);color:var(--minus)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:120}
+
 /* cổng mật khẩu */
 #gate{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
 #gate form{background:var(--panel);border-radius:24px;padding:28px 26px;width:min(400px,100%);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;text-align:center}
@@ -248,15 +287,20 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
     <button data-act="tab" data-tab="classes" class="on">🏫 Lớp học</button>
     <button data-act="tab" data-tab="rewards">🎁 Đổi quà</button>
     <button data-act="tab" data-tab="lessons">📚 Bài giảng</button>
+    <button data-act="tab" data-tab="wheel">🎡 Vòng quay</button>
+    <button data-act="tab" data-tab="timer">⏱ Đếm ngược</button>
     <button data-act="tab" data-tab="keyboard">⌨️ Bàn phím</button>
     <button data-act="tab" data-tab="settings" data-guard>⚙️ Cài đặt</button>
   </nav>
+  <button id="tmChip" class="hidden" data-act="tab" data-tab="timer" title="Đồng hồ đếm ngược">⏱ 00:00</button>
 </header>
 
 <main>
   <section id="p-classes"></section>
   <section id="p-rewards" class="hidden"></section>
   <section id="p-lessons" class="hidden"></section>
+  <section id="p-wheel" class="hidden"></section>
+  <section id="p-timer" class="hidden"></section>
   <section id="p-keyboard" class="hidden"></section>
   <section id="p-settings" class="hidden"></section>
 </main>
@@ -271,22 +315,22 @@ textarea{width:100%;min-height:110px;border-radius:10px;border:2px solid var(--l
 </form></div>
 
 <!-- Bài giảng tương tác: mỗi bài 1 file, muốn bỏ bài nào thì xóa dòng của bài đó -->
-<script src="bai-giang/core.js?v=8"></script>
-<script src="bai-giang/may-tinh-k3.js?v=8"></script>
-<script src="bai-giang/web-k3.js?v=8"></script>
-<script src="bai-giang/an-toan-k3.js?v=8"></script>
-<script src="bai-giang/suc-khoe-k3.js?v=8"></script>
-<script src="bai-giang/giao-tiep-k3.js?v=8"></script>
-<script src="bai-giang/van-ban-k3.js?v=8"></script>
-<script src="bai-giang/trinh-duyet.js?v=8"></script>
-<script src="bai-giang/tim-kiem.js?v=8"></script>
-<script src="bai-giang/nhap-xuat.js?v=8"></script>
-<script src="bai-giang/trang-chieu.js?v=8"></script>
-<script src="bai-giang/url.js?v=8"></script>
-<script src="bai-giang/internet-ip.js?v=8"></script>
-<script src="bai-giang/bang-tinh.js?v=8"></script>
-<script src="bai-giang/email.js?v=8"></script>
-<script src="bai-giang/rieng-tu.js?v=8"></script>
+<script src="bai-giang/core.js?v=9"></script>
+<script src="bai-giang/may-tinh-k3.js?v=9"></script>
+<script src="bai-giang/web-k3.js?v=9"></script>
+<script src="bai-giang/an-toan-k3.js?v=9"></script>
+<script src="bai-giang/suc-khoe-k3.js?v=9"></script>
+<script src="bai-giang/giao-tiep-k3.js?v=9"></script>
+<script src="bai-giang/van-ban-k3.js?v=9"></script>
+<script src="bai-giang/trinh-duyet.js?v=9"></script>
+<script src="bai-giang/tim-kiem.js?v=9"></script>
+<script src="bai-giang/nhap-xuat.js?v=9"></script>
+<script src="bai-giang/trang-chieu.js?v=9"></script>
+<script src="bai-giang/url.js?v=9"></script>
+<script src="bai-giang/internet-ip.js?v=9"></script>
+<script src="bai-giang/bang-tinh.js?v=9"></script>
+<script src="bai-giang/email.js?v=9"></script>
+<script src="bai-giang/rieng-tu.js?v=9"></script>
 <script>
 /* ================== Dữ liệu ================== */
 const STORE = 'saoLopHoc_v1';
@@ -855,6 +899,15 @@ function runAct(el) {
     case 'redeem': return redeem(d.sid, d.rid);
     case 'undo': { const ids = d.lids.split(','); ids.forEach(id => undoQuiet(id)); save(); renderClasses(); const m = document.querySelector('.modal[data-detail]'); if (m) openDetail(m.dataset.detail); return toast('↶ Đã hoàn tác'); }
     case 'close': return closeModal();
+    case 'spin': return wheelSpin();
+    case 'wReset': WH.picked = []; whSave(); return renderWheel();
+    case 'wPraise': return openReason(d.sid, 1);
+    case 'wAnswer': closeModal(); tmSet(+d.s); return tmStart();
+    case 'tSet': return tmSet(+d.s);
+    case 'tCustom': { const m = parseFloat(document.getElementById('tmMin').value); if (!(m > 0)) return toast('Nhập số phút'); return tmSet(Math.round(m * 60)); }
+    case 'tStart': return TM.running ? tmPause() : tmStart();
+    case 'tReset': return tmSet(TM.total);
+    case 'tBig': return tmBigOpen();
     case 'lesson': curLesson = d.id; renderLessons(); return window.scrollTo(0, 0);
     case 'lessonBack': curLesson = null; return renderLessons();
     case 'lsMode': lsMode = d.m; lsSave(); return lessonResults();
@@ -961,12 +1014,223 @@ function lessonResults() {
   el.innerHTML = `<h2 class="bg-group">Khối ${k} · GM${g} <small>IC3 Spark ${lsTag(k, g)}</small></h2>` + menu(L.filter(l => lsHas(l, k, g)), lsTag(k, g));
 }
 
+/* ================== Âm thanh nhỏ (tự tạo, không cần file) ================== */
+let AC = null;
+function tone(freq, dur, type = 'triangle', vol = 0.1) {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime;
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur);
+  } catch (e) {}
+}
+
+/* ================== Vòng quay gọi tên phát biểu ==================
+   Mỗi lớp nhớ danh sách bạn đã được gọi (trên máy này) để không gọi lại, bấm "Làm mới" để bắt đầu vòng mới. */
+const WH = { cid: null, picked: [], noRepeat: true, rot: 0, spinning: false, list: [] };
+const WH_COLORS = ['#6c4cf1', '#ff9f1c', '#1fa95b', '#e5484d', '#2f80ed', '#f5a700', '#d6409f', '#12a4b6'];
+function whKey(cid) { return 'saoLopHoc_wheel_' + cid; }
+function whLoad(c) {
+  WH.cid = c.id;
+  try { const d = JSON.parse(localStorage.getItem(whKey(c.id)) || '{}'); WH.picked = d.picked || []; WH.noRepeat = d.noRepeat !== false; }
+  catch (e) { WH.picked = []; WH.noRepeat = true; }
+}
+function whSave() { try { localStorage.setItem(whKey(WH.cid), JSON.stringify({ picked: WH.picked, noRepeat: WH.noRepeat })); } catch (e) {} }
+
+function renderWheel() {
+  const el = document.getElementById('p-wheel'); const c = curClass();
+  if (c && WH.cid !== c.id) whLoad(c);
+  const studs = c ? c.students : [];
+  WH.list = (WH.noRepeat ? studs.filter(s => !WH.picked.includes(s.id)) : studs.slice())
+    .sort((a, b) => lastName(a.name).localeCompare(lastName(b.name), 'vi'));
+  const left = `<div class="wh-box"><h2>🎡 Gọi tên phát biểu
+      <select id="whClass">${S.classes.map(x => `<option value="${x.id}" ${c && x.id === c.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></h2>
+    ${!studs.length ? '<div class="empty">Lớp chưa có học sinh.</div>' : `
+      <div class="wh-stage"><div class="wh-pin"></div><canvas id="whCv" width="1120" height="1120"></canvas>
+        <button class="wh-hub" data-act="spin" ${WH.list.length ? '' : 'disabled'}>${WH.list.length ? 'QUAY' : 'Hết'}</button></div>
+      <div class="wh-opts">
+        <label><input type="checkbox" id="whNoRep" ${WH.noRepeat ? 'checked' : ''}> Không gọi lại bạn đã trúng</label>
+        ${WH.noRepeat ? `<span>· Đã gọi ${studs.length - WH.list.length}/${studs.length}</span>` : ''}
+        <button class="btn soft" data-act="wReset">🔄 Làm mới</button>
+        <span>· Phím <b>Space</b> để quay</span>
+      </div>
+      ${WH.noRepeat && !WH.list.length ? '<p class="hint" style="text-align:center">Đã gọi hết cả lớp — bấm <b>Làm mới</b> để quay vòng mới.</p>' : ''}`}
+  </div>`;
+  el.innerHTML = `<div class="wh-wrap">${left}</div>`;
+  const sel = document.getElementById('whClass');
+  if (sel) sel.onchange = () => { S.cur = sel.value; save(); renderWheel(); };
+  const nr = document.getElementById('whNoRep');
+  if (nr) nr.onchange = () => { WH.noRepeat = nr.checked; whSave(); renderWheel(); };
+  drawWheel();
+}
+
+function renderTimer() {
+  document.getElementById('p-timer').innerHTML = `<div class="tm-wrap"><div class="wh-box">
+    <div class="tm-face" id="tmFace"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="#f0eadf" stroke-width="8"/>
+      <circle id="tmRing" cx="50" cy="50" r="45" fill="none" stroke="var(--brand)" stroke-width="8" stroke-linecap="round" stroke-dasharray="282.7" stroke-dashoffset="0"/></svg>
+      <div class="num" id="tmNum">00:00</div></div>
+    <div class="tm-pre">${[[10, '10 giây'], [30, '30 giây'], [60, '1 phút'], [120, '2 phút'], [180, '3 phút'], [300, '5 phút'], [600, '10 phút'], [900, '15 phút']]
+      .map(([s, t]) => `<button data-act="tSet" data-s="${s}" class="${TM.total === s ? 'on' : ''}">${t}</button>`).join('')}</div>
+    <div class="tm-ctl">
+      <button class="btn plus" data-act="tStart" id="tmGo">${TM.running ? '⏸ Dừng' : '▶ Bắt đầu'}</button>
+      <button class="btn soft" data-act="tReset">↺ Đặt lại</button>
+      <button class="btn soft" data-act="tBig">⛶ Phóng to</button>
+    </div>
+    <div class="tm-ctl" style="margin-top:10px"><input type="number" id="tmMin" min="0.5" step="0.5" placeholder="phút"><button class="btn soft" data-act="tCustom">Đặt số phút</button></div>
+    <div class="tm-hint">Phím <b>Space</b>: chạy / dừng · Phóng to để chiếu cho cả lớp thấy · Chuyển sang tab khác đồng hồ vẫn chạy (hiện góc trên)</div>
+  </div></div>`;
+  tmRender();
+}
+
+function drawWheel() {
+  const cv = document.getElementById('whCv'); if (!cv) return;
+  const g = cv.getContext('2d'), N = WH.list.length, R = cv.width / 2, cx = R, cy = R;
+  g.clearRect(0, 0, cv.width, cv.height);
+  g.beginPath(); g.arc(cx, cy, R - 4, 0, 7); g.fillStyle = '#2b2340'; g.fill();
+  if (!N) { g.beginPath(); g.arc(cx, cy, R - 16, 0, 7); g.fillStyle = '#f0eadf'; g.fill(); return; }
+  const a = Math.PI * 2 / N;
+  const fs = Math.max(18, Math.min(48, 900 / N + 8));
+  for (let i = 0; i < N; i++) {
+    const s = WH.rot + i * a;
+    g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, R - 16, s, s + a); g.closePath();
+    // tránh 2 ô cạnh nhau cùng màu khi quay vòng về ô đầu
+    let col = WH_COLORS[i % WH_COLORS.length]; if (i === N - 1 && N % WH_COLORS.length === 1 && N > 1) col = WH_COLORS[2];
+    g.fillStyle = col; g.fill();
+    g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 2; g.stroke();
+    g.save(); g.translate(cx, cy); g.rotate(s + a / 2);
+    g.fillStyle = '#fff'; g.font = `800 ${fs}px "Baloo 2", "Segoe UI", sans-serif`; g.textAlign = 'right'; g.textBaseline = 'middle';
+    let name = N > 16 ? lastName(WH.list[i].name) : WH.list[i].name;
+    while (g.measureText(name).width > R * 0.62 && name.length > 3) name = name.slice(0, -2) + '…';
+    g.fillText(name, R - 40, 2);
+    g.restore();
+  }
+  for (let i = 0; i < 24; i++) { // đèn viền
+    const t = i / 24 * Math.PI * 2;
+    g.beginPath(); g.arc(cx + Math.cos(t) * (R - 9), cy + Math.sin(t) * (R - 9), 5, 0, 7);
+    g.fillStyle = (i + Math.floor(WH.rot * 3)) % 2 ? '#ffd84a' : '#fff'; g.fill();
+  }
+}
+
+function wheelSpin() {
+  if (WH.spinning || !WH.list.length) return;
+  const N = WH.list.length, a = Math.PI * 2 / N;
+  const win = Math.floor(Math.random() * N);
+  // kim chỉ ở đỉnh (-90°): tâm ô thắng phải nằm đúng chỗ kim, lệch ngẫu nhiên trong ô cho tự nhiên
+  const target = -Math.PI / 2 - (win + 0.5) * a + (Math.random() - 0.5) * a * 0.7;
+  const TAU = Math.PI * 2;
+  let delta = ((target - WH.rot) % TAU + TAU) % TAU;
+  delta += TAU * (5 + Math.floor(Math.random() * 3));
+  const from = WH.rot, dur = 4800 + Math.random() * 1200, t0 = performance.now();
+  let lastSlice = Math.floor(((-Math.PI / 2 - from) % TAU + TAU) % TAU / a);
+  WH.spinning = true;
+  const hub = document.querySelector('.wh-hub'); if (hub) hub.disabled = true;
+  (function step(now) {
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 4);
+    WH.rot = from + delta * e;
+    const sl = Math.floor(((-Math.PI / 2 - WH.rot) % TAU + TAU) % TAU / a);
+    if (sl !== lastSlice) { lastSlice = sl; tone(900, 0.04, 'square', 0.04); }
+    drawWheel();
+    if (k < 1) return requestAnimationFrame(step);
+    WH.spinning = false; WH.rot %= TAU;
+    const st = WH.list[win];
+    if (WH.noRepeat) { WH.picked.push(st.id); whSave(); }
+    [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.25, 'triangle', 0.12), i * 110));
+    confetti();
+    openModal(`<div class="wh-res"><h2>🎉 Mời bạn phát biểu<button class="x" data-act="close">×</button></h2>
+      <div class="who">${esc(st.name)}</div><div class="sub">⭐ ${st.stars} sao</div>
+      <div class="acts">
+        <button class="btn soft" data-act="wAnswer" data-s="30">⏱ Cho 30 giây suy nghĩ</button>
+        <button class="btn soft" data-act="wAnswer" data-s="60">⏱ 1 phút</button>
+        <button class="btn plus" data-act="wPraise" data-sid="${st.id}" data-guard>⭐ Cộng sao</button>
+        <button class="btn" data-act="close">Đóng</button>
+      </div></div>`);
+    renderWheel();
+  })(t0);
+}
+
+function confetti() {
+  const cv = document.createElement('canvas'); cv.id = 'confetti';
+  cv.width = innerWidth; cv.height = innerHeight; document.body.appendChild(cv);
+  const g = cv.getContext('2d'), P = [];
+  for (let i = 0; i < 160; i++) P.push({ x: innerWidth / 2 + (Math.random() - .5) * 200, y: innerHeight / 3, vx: (Math.random() - .5) * 16, vy: -Math.random() * 14 - 4,
+    s: 6 + Math.random() * 8, c: WH_COLORS[i % WH_COLORS.length], r: Math.random() * 6, vr: (Math.random() - .5) * .4 });
+  const t0 = performance.now();
+  (function f(now) {
+    g.clearRect(0, 0, cv.width, cv.height);
+    P.forEach(p => { p.vy += 0.35; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); });
+    if (now - t0 < 2600) requestAnimationFrame(f); else cv.remove();
+  })(t0);
+}
+
+/* ================== Đồng hồ đếm ngược ================== */
+const TM = { total: 60, left: 60, running: false, endAt: 0, timer: null, lastBeep: -1 };
+const mmss = s => { s = Math.max(0, Math.ceil(s)); return `${pad(Math.floor(s / 60))}:${pad(s % 60)}`; };
+function tmSet(sec) { tmPause(); TM.total = TM.left = sec; TM.lastBeep = -1; tmRender(); if (curTab === 'timer') renderTimer(); }
+function tmStart() {
+  if (TM.left <= 0) TM.left = TM.total;
+  TM.running = true; TM.endAt = Date.now() + TM.left * 1000;
+  clearInterval(TM.timer); TM.timer = setInterval(tmTick, 200); tmTick();
+  const b = document.getElementById('tmGo'); if (b) b.textContent = '⏸ Dừng';
+}
+function tmPause() {
+  if (TM.running) TM.left = Math.max(0, (TM.endAt - Date.now()) / 1000);
+  TM.running = false; clearInterval(TM.timer); tmRender();
+  const b = document.getElementById('tmGo'); if (b) b.textContent = '▶ Bắt đầu';
+}
+function tmTick() {
+  TM.left = Math.max(0, (TM.endAt - Date.now()) / 1000);
+  const s = Math.ceil(TM.left);
+  if (s <= 5 && s > 0 && s !== TM.lastBeep) { TM.lastBeep = s; tone(880, 0.12, 'square', 0.06); }
+  if (TM.left <= 0) {
+    TM.running = false; clearInterval(TM.timer);
+    [0, 350, 700, 1050, 1400].forEach(d => setTimeout(() => { tone(1046, 0.18, 'square', 0.1); setTimeout(() => tone(784, 0.18, 'square', 0.1), 170); }, d));
+    const b = document.getElementById('tmGo'); if (b) b.textContent = '▶ Bắt đầu';
+  }
+  tmRender();
+}
+function tmRender() {
+  const done = !TM.running && TM.left <= 0, warn = TM.running && TM.left <= 10;
+  const num = document.getElementById('tmNum'), ring = document.getElementById('tmRing'), face = document.getElementById('tmFace');
+  if (num) num.textContent = mmss(TM.left);
+  if (ring) { ring.style.strokeDashoffset = 282.7 * (1 - TM.left / (TM.total || 1)); ring.style.stroke = warn || done ? 'var(--minus)' : 'var(--brand)'; }
+  if (face) { face.classList.toggle('warn', warn); face.classList.toggle('done', done); }
+  const big = document.getElementById('tmBig');
+  if (big) { big.querySelector('.n').textContent = mmss(TM.left); big.classList.toggle('warn', warn); big.classList.toggle('done', done); }
+  tmChipUpdate();
+}
+function tmChipUpdate() {
+  const chip = document.getElementById('tmChip'); if (!chip) return;
+  const show = (TM.running || TM.left <= 0 && TM.total) && curTab !== 'timer' && TM.left < TM.total;
+  chip.classList.toggle('hidden', !show);
+  chip.classList.toggle('warn', TM.left <= 10);
+  chip.textContent = '⏱ ' + mmss(TM.left);
+}
+function tmBigOpen() {
+  if (document.getElementById('tmBig')) return;
+  const d = document.createElement('div'); d.id = 'tmBig';
+  d.innerHTML = '<div class="n"></div><small>Bấm vào màn hình hoặc Esc để thu nhỏ · Space để dừng / chạy tiếp</small>';
+  d.onclick = () => d.remove();
+  document.body.appendChild(d); tmRender();
+}
+document.addEventListener('keydown', e => {
+  if (e.target.closest('input,textarea,select')) return;
+  const big = document.getElementById('tmBig');
+  if (e.key === 'Escape' && big) return big.remove();
+  if (e.code !== 'Space') return;
+  if (big || curTab === 'timer') { e.preventDefault(); return TM.running ? tmPause() : tmStart(); }
+  if (curTab === 'wheel' && !document.getElementById('modal').innerHTML) { e.preventDefault(); wheelSpin(); }
+});
+
 /* ================== Tabs ================== */
 let curTab = 'classes';
 function showTab(t) {
   curTab = t;
   document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
-  ['classes', 'rewards', 'lessons', 'keyboard', 'settings'].forEach(x => document.getElementById('p-' + x).classList.toggle('hidden', x !== t));
+  ['classes', 'rewards', 'lessons', 'wheel', 'timer', 'keyboard', 'settings'].forEach(x => document.getElementById('p-' + x).classList.toggle('hidden', x !== t));
+  if (t === 'wheel') renderWheel();
+  if (t === 'timer') renderTimer();
+  tmChipUpdate();
   if (t === 'classes') renderClasses();
   if (t === 'rewards') renderRewards();
   if (t === 'settings') renderSettings();
@@ -1391,7 +1655,7 @@ document.getElementById('gateForm').addEventListener('submit', async e => {
 });
 { const pw = getPw(); if (pw) { document.getElementById('gate').classList.add('hidden'); syncDS(pw, false).then(r => { if (r === 'pw') { forgetPw(); showGate(); } else cloudStart(pw); }); } else showGate(); }
 /* Tự cập nhật: máy trường hay giữ bản cũ. Mỗi lần đẩy bản mới thì tăng APP_VER và số trong version.txt cho khớp */
-const APP_VER = '8';
+const APP_VER = '9';
 function checkUpdate() {
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.text() : '').then(v => {
     v = v.trim(); if (!v || v === APP_VER) return;
